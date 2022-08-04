@@ -22,7 +22,7 @@ def pad_is_power(pad):
 
 def str_to_C_variable(string):
     out = "pin_" + string
-    out = re.sub(r'[ /]', '_', string)
+    out = re.sub(r'[ /]', '_', out)
     out = re.sub(r'-', 'N', out)
     out = re.sub(r'\+', 'P', out)
     out = re.sub(r'[^a-zA-Z0-9\_]', '', out)
