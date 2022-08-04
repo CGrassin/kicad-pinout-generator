@@ -8,7 +8,7 @@ Example applications:
 * Automatically create the pin assignement from a microcontroller to C code,
 * Generate interface documents for connectors.
 
-![HTML and C sample output](./pictures/sample_output_.png)
+![HTML and C sample output](./pictures/sample_output.png)
 
 ## Install instructions
 
@@ -21,12 +21,12 @@ To install it:
 
 To use the plugin:
 1. Select one component,
-2. Call the plugin by using the toolbar button or the Plugins menu,
+2. Run the plugin by using the toolbar button or the Plugins menu,
 3. Choose the desired format with the drop-down menu and copy-paste the result!
 
-This plugins only gives useful ouput if the pins have net names. Use labels in the schematic editor to give the nets a human-readable name.
+**This plugins only gives useful ouput if the pins have net names.** Use labels in the schematic editor to give the nets a human-readable name.
 
-Note: For the generated code, unconnected and power nets are ignored (commented in the ouput).
+Note: in the generated code, both unconnected and power nets are ignored (commented in the ouput).
 
 ## License
 
