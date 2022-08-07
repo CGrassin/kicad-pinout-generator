@@ -28,6 +28,15 @@ def str_to_C_variable(string):
     out = re.sub(r'[^a-zA-Z0-9\_]', '', out)
     out = re.sub(r'_+', '_', out)
     return out
+    
+def str_to_C_define(string):
+    out = string
+    out = re.sub(r'[ /]', '', out)
+    out = re.sub(r'-', 'N', out)
+    out = re.sub(r'\+', 'P', out)
+    out = re.sub(r'[^a-zA-Z0-9\_]', '', out)
+    out = re.sub(r'_+', '_', out)
+    return out
 
 class PinoutGenerator(pcbnew.ActionPlugin):
     def defaults(self):
@@ -48,6 +57,8 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         elif selection == 4:
             self.setCCode()
         elif selection == 5:
+            self.setArduinoCode()
+        elif selection == 6:
             self.setXDC()
         else:
             self.setList()
@@ -86,6 +97,19 @@ class PinoutGenerator(pcbnew.ActionPlugin):
                  added_vars.append(var_name)
             output += "\t" + var_name + "=" + pad.GetNumber()+",\n" 
         output += "};"
+        self.set_result(output)
+
+    def setArduinoCode(self):
+        added_vars = []
+        output = ""
+        for pad in self.pinout:
+            var_name = str_to_C_define(pad.GetNetname())
+            if var_name in added_vars or not pad.GetNumber().isdigit() or not pad_is_connected(pad) or pad_is_power(pad):
+                 output += "//"
+            else:
+                 added_vars.append(var_name)
+            output += "\t" + "#define " + var_name + " " + pad.GetNumber()+"\n" 
+        output += ""
         self.set_result(output)
 
     def setMarkdown(self):

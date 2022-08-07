@@ -2,7 +2,7 @@
 
 This KiCad plugin generates pinouts from a PCB file to various formats:
 * **Text** formats for documentation (HTML table, CSV, Markdown, etc.),
-* **Code** (currently supported: C/C++ enums, Xilinx XDC constraint).
+* **Code** (currently supported: C/C++ enums, Xilinx XDC constraint, #define format).
 
 Example applications:
 * Automatically create the pin assignement from a microcontroller to C code,

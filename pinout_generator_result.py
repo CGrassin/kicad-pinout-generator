@@ -17,7 +17,7 @@ import wx.xrc
 class PinoutDialog ( wx.Dialog ):
 
 	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Pinout result", pos = wx.DefaultPosition, size = wx.Size( 500,400 ), style = wx.DEFAULT_DIALOG_STYLE )
+		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Pinout result", pos = wx.DefaultPosition, size = wx.Size( 500,800 ), style = wx.DEFAULT_DIALOG_STYLE )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
@@ -37,7 +37,7 @@ class PinoutDialog ( wx.Dialog ):
 
 		bSizer4.Add( self.m_staticText1, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
 
-		output_formatChoices = [ u"List", u"CSV", u"HTML table", u"Markdown table", u"C/C++ code (enum)", u"VHDL (XDC format)" ]
+		output_formatChoices = [ u"List", u"CSV", u"HTML table", u"Markdown table", u"C/C++ code (enum)", u"C/C++ code (define)", u"VHDL (XDC format)" ]
 		self.output_format = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, output_formatChoices, 0 )
 		self.output_format.SetSelection( 0 )
 		bSizer4.Add( self.output_format, 0, wx.ALL|wx.EXPAND, 5 )
