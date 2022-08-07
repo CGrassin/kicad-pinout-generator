@@ -30,11 +30,11 @@ def str_to_C_variable(string):
     return out
     
 def str_to_C_define(string):
-    out = string
+    out = string.upper()
     out = re.sub(r'[ /]', '', out)
     out = re.sub(r'-', 'N', out)
     out = re.sub(r'\+', 'P', out)
-    out = re.sub(r'[^a-zA-Z0-9\_]', '', out)
+    out = re.sub(r'[^a-zA-Z0-9_]', '', out)
     out = re.sub(r'_+', '_', out)
     return out
 
@@ -47,22 +47,33 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         self.icon_file_name = os.path.join(os.path.dirname(__file__), 'logo.png')
 
     def change_format( self, event ):
-        selection = self.get_selection()
-        if selection == 1: # CSV
-            self.setCSV()
-        elif selection == 2:
-            self.setHTML()
-        elif selection == 3:
-            self.setMarkdown()
-        elif selection == 4:
-            self.setCCode()
-        elif selection == 5:
-            self.setArduinoCode()
-        elif selection == 6:
-            self.setXDC()
-        else:
-            self.setList()
+        self.set_output(self.get_selection())
         event.Skip()
+
+    def set_output(self, selection=0):        
+        if selection == 0: #list
+            output_formater = self.setList
+        if selection == 1: # CSV
+            output_formater = self.setCSV
+        elif selection == 2: # HTML table
+            output_formater = self.setHTML
+        elif selection == 3: # MD table
+            output_formater = self.setMarkdown
+        elif selection == 4: # C/Cpp enum
+            output_formater = self.setCCode_enum
+        elif selection == 5: # C/Cpp define
+            output_formater = self.setCCode_define
+        elif selection == 6: # Python dict
+            output_formater = self.set_python
+        elif selection == 7:
+            output_formater = self.setXDC
+
+        # checks for format n
+        # output = ""
+        output = output_formater()
+        # for component in self.components:
+        #     output += output_format(component)
+        self.set_result(output)
 
     def setList(self):
         output = ""
@@ -70,13 +81,13 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             if output != "":
                 output += "\n"
             output += pad.GetNumber() + "\t" + (pad.GetNetname() if pad_is_connected(pad) else not_connected_text) + "\t" + pad.GetPinType ()
-        self.set_result(output)
+        return output
 
     def setCSV(self):
         output = ""
         for pad in self.pinout:
             output += "\"" + pad.GetNumber() + "\"" + "," + "\"" + (pad.GetNetname() if pad_is_connected(pad) else not_connected_text) + "\"" + "\n"
-        self.set_result(output)
+        return output
 
     def setHTML(self):
         output = "<table>\n"
@@ -84,9 +95,9 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         for pad in self.pinout:
             output += "\t<tr><td>" + pad.GetNumber() + "</td><td>" + (pad.GetNetname() if pad_is_connected(pad) else not_connected_text) + "</td></tr>\n"
         output += "</table>"
-        self.set_result(output)
+        return output
 
-    def setCCode(self):
+    def setCCode_enum(self):
         added_vars = []
         output = "enum pinout{\n"
         for pad in self.pinout:
@@ -97,27 +108,43 @@ class PinoutGenerator(pcbnew.ActionPlugin):
                  added_vars.append(var_name)
             output += "\t" + var_name + "=" + pad.GetNumber()+",\n" 
         output += "};"
-        self.set_result(output)
+        return output
 
-    def setArduinoCode(self):
+    def setCCode_define(self):
         added_vars = []
         output = ""
         for pad in self.pinout:
             var_name = str_to_C_define(pad.GetNetname())
-            if var_name in added_vars or not pad.GetNumber().isdigit() or not pad_is_connected(pad) or pad_is_power(pad):
-                 output += "//"
+            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad):
+                 output += "// "
             else:
                  added_vars.append(var_name)
-            output += "\t" + "#define " + var_name + " " + pad.GetNumber()+"\n" 
-        output += ""
-        self.set_result(output)
+            output += "#define " + var_name + " " + pad.GetNumber()+"\n" 
+        return output
+
+    def set_python(self):
+        added_vars = []
+        output = "pinout = {\n"
+        for pad in self.pinout:
+            var_name = str_to_C_variable(pad.GetNetname())
+            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad):
+                 output += "#"
+            else:
+                 added_vars.append(var_name)
+            output += "    \'" + var_name + "\' : "
+            if pad.GetNumber().isdigit():
+                output += pad.GetNumber() + ',\n'
+            else:
+                output += "\'" + pad.GetNumber() + "\'" + ',\n'
+        output += "}"
+        return output
 
     def setMarkdown(self):
         output = "| Pin number | Pin net |\n"
         output +="|------------|---------|\n"
         for pad in self.pinout:
             output += "| " + pad.GetNumber() + " | " + (pad.GetNetname() if pad_is_connected(pad) else not_connected_text) + " |\n"
-        self.set_result(output)
+        return output
 
     # TODO check VHDL port validity
     def setXDC(self):
@@ -130,7 +157,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             else:
                 added_vars.append(var_name)
             output += "set_property -dict { PACKAGE_PIN "+pad.GetNumber()+"    IOSTANDARD LVCMOS33 } [get_ports { "+var_name+" }];\n"
-        self.set_result(output)
+        return output
 
 
     def Run(self):
@@ -155,11 +182,11 @@ class PinoutGenerator(pcbnew.ActionPlugin):
                 self.pinout.append(pad)
                 added_pads.append(pad.GetNumber())
 
-        # set up the GUI
+        # set up and show the GUI
         a = PinoutDialog(None)
         a.output_format.Bind( wx.EVT_CHOICE, self.change_format )
         self.set_result = a.result.SetValue
         self.get_selection = a.output_format.GetSelection
-        self.setList()
+        self.set_output() # set result to default format
         modal_result = a.ShowModal()
         a.Destroy()
