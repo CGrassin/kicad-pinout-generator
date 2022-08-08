@@ -98,7 +98,7 @@
                         <property name="enabled">1</property>
                         <property name="fg"></property>
                         <property name="floatable">1</property>
-                        <property name="font"></property>
+                        <property name="font">Monospace,90,90,-1,76,0</property>
                         <property name="gripper">0</property>
                         <property name="hidden">0</property>
                         <property name="id">wxID_ANY</property>
@@ -225,7 +225,7 @@
                                 <property name="caption"></property>
                                 <property name="caption_visible">1</property>
                                 <property name="center_pane">0</property>
-                                <property name="choices">&quot;List&quot; &quot;CSV&quot; &quot;HTML table&quot; &quot;Markdown table&quot; &quot;C/C++ code (enum)&quot; &quot;C/C++ code (define)&quot; &quot;Python (dict)&quot; &quot;VHDL (XDC format)&quot;</property>
+                                <property name="choices">&quot;List&quot; &quot;CSV&quot; &quot;HTML table&quot; &quot;Markdown table&quot; &quot;C/C++ code (enum)&quot; &quot;C/C++ code (define)&quot; &quot;Python (dict)&quot; &quot;VHDL (XDC format)&quot; &quot;WireViz &quot;</property>
                                 <property name="close_button">1</property>
                                 <property name="context_help"></property>
                                 <property name="context_menu">1</property>

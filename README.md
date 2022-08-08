@@ -1,7 +1,7 @@
 # KiCad Pinout Generator
 
 This KiCad plugin generates pinouts from a PCB file to various formats:
-* **Text** formats for documentation (HTML table, CSV, Markdown, etc.),
+* **Text** formats for documentation (HTML table, CSV, Markdown, WireViz, etc.),
 * **Code** (currently supported: C/C++ enums, C/C++ #define, Xilinx XDC constraint, Python/MicroPython dict).
 
 Example applications:
