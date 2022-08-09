@@ -97,23 +97,23 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output = ""
         pinout = get_pins(component)
         for pad in pinout:
-            output += pad.GetNumber() + "\t" + get_pin_name_unless_NC(pad) + "\n"
+            output += pad.GetNumber() + "\t" + pad.GetPinFunction() + "\t" + get_pin_name_unless_NC(pad) + "\n"
         return output
 
     def setCSV(self, component):
         output = ""
         pinout = get_pins(component)
         for pad in pinout:
-            output += "\"" + pad.GetNumber() + "\"" + "," + "\"" +  get_pin_name_unless_NC(pad) + "\"" + "\n"
+            output += "\"" + pad.GetNumber() + "\"" + "," + "\"" + pad.GetPinFunction() + "\"" + "," + "\"" +  get_pin_name_unless_NC(pad) + "\"" + "\n"
         return output
 
-    def setHTML(self, component): # FIXME HTML excape
+    def setHTML(self, component): # FIXME HTML escape chars
         output =  "<p>Pinout for "+component.GetReference()+" ("+component.GetValue()+"):</p>\n"
         output += "<table>\n"
-        output += "\t<tr><th>Pin number</th><th>Pin net</th></tr>\n"
+        output += "\t<tr><th>Pin number</th><th>Pin name</th><th>Pin net</th></tr>\n"
         pinout = get_pins(component)
         for pad in pinout:
-            output += "\t<tr><td>" + pad.GetNumber() + "</td><td>" +  get_pin_name_unless_NC(pad) + "</td></tr>\n"
+            output += "\t<tr><td>" + pad.GetNumber() + "</td><td>" + pad.GetPinFunction() + "</td><td>" +  get_pin_name_unless_NC(pad) + "</td></tr>\n"
         output += "</table>\n"
         return output
 
@@ -165,15 +165,16 @@ class PinoutGenerator(pcbnew.ActionPlugin):
     def setMarkdown(self, component):
         output = "Pinout for "+component.GetReference()+" ("+component.GetValue()+"):\n"
         pinout = get_pins(component)
-        max_len_num, max_len_name = len('Pin number'),len('Pin net')
+        max_len_num, max_len_name, max_fn_name = len('Pin number'),len('Pin net'), len('Pin name')
         for pad in pinout:
+            max_fn_name = max(max_fn_name, len(pad.GetPinFunction()))
             max_len_num = max(max_len_num, len(pad.GetNumber()))
             max_len_name = max(max_len_name, len( get_pin_name_unless_NC(pad)))
-        output += "| Pin number"+' '*(max_len_num-len('Pin number'))+" | Pin net"+' '*(max_len_name-len('Pin net'))+" |\n"
-        output +="|---"+'-'*(max_len_num-1)+"|---"+'-'*(max_len_name-1)+"|\n"
+        output += "| Pin number" + ' '*(max_len_num-len('Pin number')) + " | Pin name" + ' '*(max_fn_name-len('Pin name')) + " | Pin net" + ' '*(max_len_name-len('Pin net')) + " |\n"
+        output +="|---"+'-'*(max_len_num-1)+"|---"+'-'*(max_fn_name-1)+"|---"+'-'*(max_len_name-1)+"|\n"
         
         for pad in pinout:
-            output += "| " + pad.GetNumber() + ' '*(max_len_num-len(pad.GetNumber())) + " | " +  get_pin_name_unless_NC(pad) + ' '*(max_len_name-len(get_pin_name_unless_NC(pad))) + " |\n"
+            output += "| " + pad.GetNumber() + ' '*(max_len_num-len(pad.GetNumber())) + " | "  + pad.GetPinFunction() + ' '*(max_fn_name-len(pad.GetPinFunction())) + " | " +  get_pin_name_unless_NC(pad) + ' '*(max_len_name-len(get_pin_name_unless_NC(pad))) + " |\n"
         return output
 
     def wireviz_format(self, component):
@@ -217,10 +218,12 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             return
 
         # set up and show the GUI
-        a = PinoutDialog(None)
-        a.output_format.Bind( wx.EVT_CHOICE, self.change_format )
-        self.set_result = a.result.SetValue
-        self.get_selection = a.output_format.GetSelection
+        dialog = PinoutDialog(None)
+        dialog.output_format.Bind( wx.EVT_CHOICE, self.change_format )
+        # self.is_pinname_not_number = dialog.pinname_cb.GetValue()
+        # dialog.pinname_cb.Bind( wx.EVT_CHECKBOX, self.change_format )
+        self.set_result = dialog.result.SetValue
+        self.get_selection = dialog.output_format.GetSelection
         self.set_output() # set result to default format
-        modal_result = a.ShowModal()
-        a.Destroy()
+        modal_result = dialog.ShowModal()
+        dialog.Destroy()
