@@ -149,7 +149,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output += "#define " + var_name + " " + pad.GetNumber()+"\n" 
         return output
 
-    def set_python(self, component): # TODO add chip ref
+    def set_python(self, component):
         added_vars = []
         output = "pinout_"+component.GetReference()+" = {\n"
         pinout = get_pins(component)
@@ -168,7 +168,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         return output
 
     def setMarkdown(self, component):
-        output = "Pinout for "+component.GetReference()+" ("+component.GetValue()+"):\n"
+        output = "Pinout for "+component.GetReference()+" ("+component.GetValue()+"):\n\n"
         pinout = get_pins(component)
         max_len_num, max_len_name, max_fn_name = len('Pin number'),len('Pin net'), len('Pin name')
         for pad in pinout:
@@ -223,14 +223,22 @@ class PinoutGenerator(pcbnew.ActionPlugin):
 
 
     def Run(self):
+        # Look for selected FP
         self.footprint_selection = []
         for footprint in pcbnew.GetBoard().GetFootprints():
             if footprint.IsSelected():
                 self.footprint_selection .append(footprint)
 
-        # TODO also check for selected pads, and add parent to selection
+        # Also check for selected pads, and add parent to selection (UX TBC)
+        try:
+            for pad in pcbnew.GetBoard().GetPads():
+                if pad.IsSelected():
+                    if pad.GetParent() not in self.footprint_selection:
+                        self.footprint_selection .append(pad.GetParent())
+        except Exception: 
+            pass
 
-        # check selection
+        # check selection len
         if len(self.footprint_selection ) < 1:
             wx.MessageBox("Select at least one component!")
             return
