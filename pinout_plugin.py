@@ -87,6 +87,11 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         elif selection == 8:
             output_formater = self.wireviz_format
             output = "connectors:\n"
+        elif selection == 9:
+            output_formater = self.setPDC
+            if len(self.footprint_selection) > 1:
+                self.set_result("This format is not compatible with multiple selection. Only select a single component.")
+                return
 
         # checks for format n
         for component in self.footprint_selection:
@@ -190,17 +195,30 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += pinlabels_output+"]\n"
         return output
 
-    def setXDC(self, component): # TODO add chip ref
+    def setXDC(self, component):
         added_vars = []
-        output = " ## Pinout generated\n"
+        output = "## Pinout generated for "+component.GetReference()+"\n"
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
             if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad):
-                 output += "#"
+                 output += "# "
             else:
                 added_vars.append(var_name)
             output += "set_property -dict { PACKAGE_PIN "+pad.GetNumber()+"    IOSTANDARD LVCMOS33 } [get_ports { "+var_name+" }];\n"
+        return output
+
+    def setPDC(self, component):
+        added_vars = []
+        output = "## Pinout generated for "+component.GetReference()+"\n"
+        pinout = get_pins(component)
+        for pad in pinout:
+            var_name = str_to_C_variable(pad.GetNetname())
+            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad):
+                 output += "# "
+            else:
+                added_vars.append(var_name)
+            output += "set_io "+var_name+" -pinname "+pad.GetNumber()+" -fixed yes"+"\n"
         return output
 
 

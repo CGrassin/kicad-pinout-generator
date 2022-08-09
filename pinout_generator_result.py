@@ -26,7 +26,7 @@ class PinoutDialog ( wx.Dialog ):
 		gbSizer1.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
 		self.result = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE|wx.TE_READONLY|wx.VSCROLL )
-		self.result.SetFont( wx.Font( 10, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, wx.EmptyString ) )
+		self.result.SetFont( wx.Font( 10, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Monospace" ) )
 		self.result.SetToolTip( u"Result (copy-paste this)" )
 
 		gbSizer1.Add( self.result, wx.GBPosition( 0, 0 ), wx.GBSpan( 1, 1 ), wx.ALL|wx.EXPAND, 5 )
@@ -38,7 +38,7 @@ class PinoutDialog ( wx.Dialog ):
 
 		bSizer4.Add( self.m_staticText1, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
 
-		output_formatChoices = [ u"List", u"CSV", u"HTML table", u"Markdown table", u"C/C++ code (enum)", u"C/C++ code (define)", u"Python (dict)", u"VHDL (XDC format)", u"WireViz " ]
+		output_formatChoices = [ u"List", u"CSV", u"HTML table", u"Markdown table", u"C/C++ code (enum)", u"C/C++ code (define)", u"Python (dict)", u"VHDL (XDC format)", u"WireViz ", u"VHDL (PDC format)" ]
 		self.output_format = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, output_formatChoices, 0 )
 		self.output_format.SetSelection( 0 )
 		bSizer4.Add( self.output_format, 0, wx.ALL|wx.EXPAND, 5 )
