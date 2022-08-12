@@ -230,13 +230,13 @@ class PinoutGenerator(pcbnew.ActionPlugin):
                 self.footprint_selection .append(footprint)
 
         # Also check for selected pads, and add parent to selection (UX TBC)
-        try:
-            for pad in pcbnew.GetBoard().GetPads():
-                if pad.IsSelected():
-                    if pad.GetParent() not in self.footprint_selection:
-                        self.footprint_selection .append(pad.GetParent())
-        except Exception: 
-            pass
+        # try:
+        #     for pad in pcbnew.GetBoard().GetPads():
+        #         if pad.IsSelected():
+        #             if pad.GetParent() not in self.footprint_selection:
+        #                 self.footprint_selection .append(pad.GetParent())
+        # except Exception: 
+        #     pass
 
         # check selection len
         if len(self.footprint_selection ) < 1:
