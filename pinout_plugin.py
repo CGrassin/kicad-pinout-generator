@@ -45,6 +45,10 @@ def get_pins(component):
             added_pads.append(pad.GetNumber())
     return pinout
 
+def kicad_net_to_HTML(string):
+    out = re.sub(r'~{(.+)}', r'<span style="text-decoration:overline">\1</span>', string)
+    return out
+
 def get_pin_name_unless_NC(pad):
     return (pad.GetNetname() if pad_is_connected(pad) else 'NC')
 
@@ -118,7 +122,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += "\t<tr><th>Pin number</th><th>Pin name</th><th>Pin net</th></tr>\n"
         pinout = get_pins(component)
         for pad in pinout:
-            output += "\t<tr><td>" + pad.GetNumber() + "</td><td>" + pad.GetPinFunction() + "</td><td>" +  get_pin_name_unless_NC(pad) + "</td></tr>\n"
+            output += "\t<tr><td>" + pad.GetNumber() + "</td><td>" + pad.GetPinFunction() + "</td><td>" +  kicad_net_to_HTML(get_pin_name_unless_NC(pad)) + "</td></tr>\n"
         output += "</table>\n"
         return output
 
@@ -230,6 +234,8 @@ class PinoutGenerator(pcbnew.ActionPlugin):
                 self.footprint_selection .append(footprint)
 
         # Also check for selected pads, and add parent to selection (UX TBC)
+        # FIXME this add the FP once per pad?
+
         # try:
         #     for pad in pcbnew.GetBoard().GetPads():
         #         if pad.IsSelected():
