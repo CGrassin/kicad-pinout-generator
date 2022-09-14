@@ -16,7 +16,10 @@ def pad_is_connected(pad):
     return ('no_connect' not in pad.GetPinType()) and pad.IsConnected()
 
 def pad_is_power(pad):
-    return 'power' in pad.GetPinType()
+    return 'power' in pad.GetPinType() 
+
+def pad_is_passive(pad):
+    return 'passive' in pad.GetPinType()
 
 def str_to_C_variable(string):
     out = "pin_" + string
@@ -201,7 +204,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
-            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad):
+            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad_is_passive(pad):
                  output += "# "
             else:
                 added_vars.append(var_name)
@@ -214,7 +217,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
-            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad.GetNumber() == '':
+            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad.GetNumber() == '' or pad_is_passive(pad):
                  output += "# "
             else:
                 added_vars.append(var_name)
