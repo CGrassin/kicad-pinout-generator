@@ -142,15 +142,17 @@ class PinoutGenerator(pcbnew.ActionPlugin):
 
     def setCCode_define(self, component):
         added_vars = []
-        output = ""
+        output = "define net name | GPIO number \n"
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_define(pad.GetNetname())
             if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad):
-                 output += "// "
+                pass
             else:
-                 added_vars.append(var_name)
-            output += "#define " + var_name + " " + pad.GetNumber()+"\n" 
+                added_vars.append(var_name)
+                if "GPIO" in pad.GetPinFunction():
+                    gpioNumber = pad.GetPinFunction().split("GPIO", 1)[1]
+                    output += "#define " + var_name + " " + gpioNumber + "\n"
         return output
 
     def set_python(self, component):
