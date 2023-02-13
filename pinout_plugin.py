@@ -102,24 +102,28 @@ class PinoutGenerator(pcbnew.ActionPlugin):
 
         # checks for format n
         for component in self.footprint_selection:
-            output += output_formater(component)
+            output += output_formater(component, len(self.footprint_selection))
         self.set_result(output)
 
-    def setList(self, component):
+    def setList(self, component, nb_components=1):
         output = ""
         pinout = get_pins(component)
         for pad in pinout:
+            if nb_components > 1:
+                output += component.GetReference() + "\t" 
             output += pad.GetNumber() + "\t" + pad.GetPinFunction() + "\t" + get_pin_name_unless_NC(pad) + "\n"
         return output
 
-    def setCSV(self, component):
+    def setCSV(self, component, nb_components=1, sep=","):
         output = ""
         pinout = get_pins(component)
         for pad in pinout:
-            output += "\"" + pad.GetNumber() + "\"" + "," + "\"" + pad.GetPinFunction() + "\"" + "," + "\"" +  get_pin_name_unless_NC(pad) + "\"" + "\n"
+            if nb_components > 1:
+                output += "\"" + component.GetReference() + "\"" + sep 
+            output += "\"" + pad.GetNumber() + "\"" + sep + "\"" + pad.GetPinFunction() + "\"" + sep + "\"" +  get_pin_name_unless_NC(pad) + "\"" + "\n"
         return output
 
-    def setHTML(self, component): # FIXME HTML escape chars
+    def setHTML(self, component, nb_components=1): # FIXME HTML escape chars
         output =  "<p>Pinout for "+component.GetReference()+" ("+component.GetValue()+"):</p>\n"
         output += "<table>\n"
         output += "\t<tr><th>Pin number</th><th>Pin name</th><th>Pin net</th></tr>\n"
@@ -129,7 +133,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += "</table>\n"
         return output
 
-    def setCCode_enum(self, component):
+    def setCCode_enum(self, component, nb_components=1):
         added_vars = []
         output = "enum pinout_"+component.GetReference()+"{\n"
         pinout = get_pins(component)
@@ -143,7 +147,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += "};\n"
         return output
 
-    def setCCode_define(self, component):
+    def setCCode_define(self, component, nb_components=1):
         added_vars = []
         output = ""
         pinout = get_pins(component)
@@ -156,7 +160,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output += "#define " + var_name + " " + pad.GetNumber()+"\n" 
         return output
 
-    def set_python(self, component):
+    def set_python(self, component, nb_components=1):
         added_vars = []
         output = "pinout_"+component.GetReference()+" = {\n"
         pinout = get_pins(component)
@@ -174,7 +178,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += "}\n"
         return output
 
-    def setMarkdown(self, component):
+    def setMarkdown(self, component, nb_components=1):
         output = "Pinout for "+component.GetReference()+" ("+component.GetValue()+"):\n\n"
         pinout = get_pins(component)
         max_len_num, max_len_name, max_fn_name = len('Pin number'),len('Pin net'), len('Pin name')
@@ -189,7 +193,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output += "| " + pad.GetNumber() + ' '*(max_len_num-len(pad.GetNumber())) + " | "  + pad.GetPinFunction() + ' '*(max_fn_name-len(pad.GetPinFunction())) + " | " +  get_pin_name_unless_NC(pad) + ' '*(max_len_name-len(get_pin_name_unless_NC(pad))) + " |\n"
         return output
 
-    def wireviz_format(self, component):
+    def wireviz_format(self, component, nb_components=1):
         output = "    "+component.GetReference()+":\n"
         output += "        type: "+component.GetValue()+"\n"
         pins_output = "        pins: ["
@@ -202,7 +206,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += pinlabels_output+"]\n"
         return output
 
-    def setXDC(self, component):
+    def setXDC(self, component, nb_components=1):
         added_vars = []
         output = "## Pinout generated for "+component.GetReference()+"\n"
         pinout = get_pins(component)
@@ -215,7 +219,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output += "set_property -dict { PACKAGE_PIN "+pad.GetNumber()+"    IOSTANDARD LVCMOS33 } [get_ports { "+var_name+" }];\n"
         return output
 
-    def setPDC(self, component):
+    def setPDC(self, component, nb_components=1):
         added_vars = []
         output = "## Pinout generated for "+component.GetReference()+"\n"
         pinout = get_pins(component)
@@ -234,11 +238,10 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         self.footprint_selection = []
         for footprint in pcbnew.GetBoard().GetFootprints():
             if footprint.IsSelected():
-                self.footprint_selection .append(footprint)
+                self.footprint_selection.append(footprint)
 
         # Also check for selected pads, and add parent to selection (UX TBC)
         # FIXME this add the FP once per pad?
-
         # try:
         #     for pad in pcbnew.GetBoard().GetPads():
         #         if pad.IsSelected():
