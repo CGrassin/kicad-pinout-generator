@@ -208,7 +208,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
-            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad_is_passive(pad):
+            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad.GetNumber() == '' or pad_is_passive(pad):
                  output += "# "
             else:
                 added_vars.append(var_name)
