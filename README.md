@@ -45,6 +45,10 @@ To use the plugin:
 
 Note: in the generated code, both unconnected and power nets are ignored (commented in the ouput).
 
+For C/C++ and Python format, there is a checkbox to use the pin name istead of pin number as the variable value. When checked, a filter can also be entered:
+* If the filter is left empty, the full pin name is used.
+* If something is entered, the plugin looks for this in the pin name, and extract the number after this string. For instance, if a pin name is "GPIO64/SPI", entering "GPIO" as filter will result in "64" in the output.
+
 ## License
 
 This plugin is published under MIT license.
