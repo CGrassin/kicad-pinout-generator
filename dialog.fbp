@@ -387,7 +387,7 @@
                                         <property name="gripper">0</property>
                                         <property name="hidden">0</property>
                                         <property name="id">wxID_ANY</property>
-                                        <property name="label">Pin name filter</property>
+                                        <property name="label">Pin name prefix filter</property>
                                         <property name="markup">0</property>
                                         <property name="max_size"></property>
                                         <property name="maximize_button">0</property>
@@ -469,7 +469,7 @@
                                         <property name="style"></property>
                                         <property name="subclass">; ; forward_declare</property>
                                         <property name="toolbar_pane">0</property>
-                                        <property name="tooltip"></property>
+                                        <property name="tooltip">E.g. if the pin name is &quot;GPIO36&quot;, setting the filter to &quot;GPIO&quot; will output &quot;36&quot;</property>
                                         <property name="validator_data_type"></property>
                                         <property name="validator_style">wxFILTER_NONE</property>
                                         <property name="validator_type">wxDefaultValidator</property>

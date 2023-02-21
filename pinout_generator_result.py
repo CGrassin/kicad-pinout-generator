@@ -55,7 +55,7 @@ class PinoutDialog ( wx.Dialog ):
 
 		bSizer3 = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.m_staticText111 = wx.StaticText( self, wx.ID_ANY, u"Pin name filter", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText111 = wx.StaticText( self, wx.ID_ANY, u"Pin name prefix filter", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText111.Wrap( -1 )
 
 		bSizer3.Add( self.m_staticText111, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
@@ -63,6 +63,7 @@ class PinoutDialog ( wx.Dialog ):
 		self.pinNameFilter = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.pinNameFilter.SetFont( wx.Font( 10, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Monospace" ) )
 		self.pinNameFilter.Enable( False )
+		self.pinNameFilter.SetToolTip( u"E.g. if the pin name is \"GPIO36\", setting the filter to \"GPIO\" will output \"36\"" )
 
 		bSizer3.Add( self.pinNameFilter, 0, wx.ALL|wx.EXPAND, 5 )
 
