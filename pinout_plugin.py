@@ -56,7 +56,7 @@ def get_pins(component):
     pinout = []
     added_pads = [] 
     for pad in component.Pads():
-        if pad.GetNumber() not in added_pads: # filter redundant pads (eg.: thermal pad)
+        if pad.GetNumber() not in added_pads and pad.GetNumber() != '': # filter redundant and bogus pads (eg.: thermal pad)
             pinout.append(pad)
             added_pads.append(pad.GetNumber())
     return pinout
@@ -228,7 +228,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
-            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad.GetNumber() == '' or pad_is_passive(pad):
+            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad_is_passive(pad):
                  output += "# "
             else:
                 added_vars.append(var_name)
@@ -241,7 +241,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
-            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad.GetNumber() == '' or pad_is_passive(pad):
+            if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad) or pad_is_passive(pad):
                  output += "# "
             else:
                 added_vars.append(var_name)
