@@ -40,7 +40,7 @@ class PinoutDialog ( wx.Dialog ):
 
 		bSizer4.Add( self.m_staticText11, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
 
-		output_formatChoices = [ u"List", u"CSV", u"HTML table", u"Markdown table", u"C/C++ code (enum)", u"C/C++ code (define)", u"Python (dict)", u"WireViz ", u"VHDL (XDC format)", u"VHDL (PDC format)" ]
+		output_formatChoices = [ u"List", u"CSV", u"HTML table", u"Markdown table", u"C/C++ code (#define)", u"C/C++ code (enum)", u"Python (dict)", u"WireViz ", u"FPGA (XDC format)", u"FPGA (PDC format)" ]
 		self.output_format = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, output_formatChoices, 0 )
 		self.output_format.SetSelection( 0 )
 		bSizer4.Add( self.output_format, 0, wx.ALL, 5 )

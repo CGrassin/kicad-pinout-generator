@@ -13,8 +13,8 @@ SELECTOR = {
     'csv':1,
     'html':2,
     'md':3,
-    'c_enum':4,
-    'c_define':5,
+    'c_define':4,
+    'c_enum':5,
     'python_dict':6,
     'wireviz':7,
     'fpga_xdc':8,
@@ -69,7 +69,7 @@ def get_pin_name_unless_NC(pad):
     return (pad.GetNetname() if pad_is_connected(pad) else 'NC')
 
 def filter_pinname(pinName, filt):
-    '''Returns '''
+    '''Filters a number out of a pin name'''
     if filt and re.match(r'.*'+filt+'[0-9]+.*', pinName):
         return re.sub(r'.*'+filt+'([0-9]+).*', r'\1', pinName)
     return pinName
@@ -89,62 +89,51 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         event.Skip()
 
     def set_output(self, selection):
-        output = ""   
+        if len(self.footprint_selection) > 1 and selection in [SELECTOR['c_define'], SELECTOR['fpga_xdc'], SELECTOR['fpga_pdc']]:
+            self.set_result("This format is not compatible with multiple selection. Only select a single component.")
+            return
+
+        output = ""
         if selection == SELECTOR['list']:
-            output_formater = self.setList
+            output_formater = self.list_format
         if selection == SELECTOR['csv']:
-            output_formater = self.setCSV
+            output_formater = self.csv_format
         elif selection == SELECTOR['html']:
-            output_formater = self.setHTML
+            output_formater = self.html_format
         elif selection == SELECTOR['md']:
-            output_formater = self.setMarkdown
+            output_formater = self.markdown_format
         elif selection == SELECTOR['c_enum']:
-            output_formater = self.setCCode_enum
+            output_formater = self.c_enum_format
         elif selection == SELECTOR['c_define']:
-            output_formater = self.setCCode_define
-            if len(self.footprint_selection) > 1:
-                self.set_result("This format is not compatible with multiple selection. Only select a single component.")
-                return
+            output_formater = self.c_define_format
         elif selection == SELECTOR['python_dict']:
-            output_formater = self.set_python
+            output_formater = self.python_dict_format
         elif selection == SELECTOR['wireviz']:
             output_formater = self.wireviz_format
             output = "connectors:\n"
         elif selection == SELECTOR['fpga_xdc']:
-            output_formater = self.setXDC
-            if len(self.footprint_selection) > 1:
-                self.set_result("This format is not compatible with multiple selection. Only select a single component.")
-                return
+            output_formater = self.xdc_format
         elif selection == SELECTOR['fpga_pdc']:
-            output_formater = self.setPDC
-            if len(self.footprint_selection) > 1:
-                self.set_result("This format is not compatible with multiple selection. Only select a single component.")
-                return
+            output_formater = self.pdc_format
 
         # checks for format n
         for component in self.footprint_selection:
-            output += output_formater(component, len(self.footprint_selection))
+            output += output_formater(component)
         self.set_result(output)
 
-    def setList(self, component, nb_components=1):
+    def csv_format(self, component, sep=",", quote="\""):
         output = ""
         pinout = get_pins(component)
         for pad in pinout:
-            if nb_components > 1:
-                output += component.GetReference() + "\t" 
-            output += pad.GetNumber() + "\t" + pad.GetPinFunction() + "\t" + get_pin_name_unless_NC(pad) + "\n"
+            if len(self.footprint_selection) > 1:
+                output += quote + component.GetReference() + quote + sep 
+            output += quote + pad.GetNumber() + quote + sep + quote + pad.GetPinFunction() + quote + sep + quote +  get_pin_name_unless_NC(pad) + quote + "\n"
         return output
 
-    def setCSV(self, component, nb_components=1, sep=","):
-        output = ""
-        pinout = get_pins(component)
-        for pad in pinout:
-            if nb_components > 1:
-                output += "\"" + component.GetReference() + "\"" + sep 
-            output += "\"" + pad.GetNumber() + "\"" + sep + "\"" + pad.GetPinFunction() + "\"" + sep + "\"" +  get_pin_name_unless_NC(pad) + "\"" + "\n"
-        return output
+    def list_format(self, component):
+        return self.csv_format(component, "\t", "")
 
-    def setHTML(self, component, nb_components=1): # FIXME HTML escape chars
+    def html_format(self, component): # FIXME HTML escape chars
         output =  "<p>Pinout for "+component.GetReference()+" ("+component.GetValue()+"):</p>\n"
         output += "<table>\n"
         output += "\t<tr><th>Pin number</th><th>Pin name</th><th>Pin net</th></tr>\n"
@@ -154,7 +143,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += "</table>\n"
         return output
 
-    def setCCode_enum(self, component, nb_components=1):
+    def c_enum_format(self, component):
         added_vars = []
         output = "enum pinout_"+component.GetReference()+"{\n"
         pinout = get_pins(component)
@@ -170,9 +159,9 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += "};\n"
         return output
 
-    def setCCode_define(self, component, nb_components=1):
+    def c_define_format(self, component):
         added_vars = []
-        output = ""
+        output = "// Pinout for "+component.GetReference()+" ("+component.GetValue()+")\n"
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_define(pad.GetNetname())
@@ -185,7 +174,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output += "#define " + var_name + " " + var_value +"\n" 
         return output
 
-    def set_python(self, component, nb_components=1):
+    def python_dict_format(self, component):
         added_vars = []
         output = "pinout_"+component.GetReference()+" = {\n"
         pinout = get_pins(component)
@@ -205,7 +194,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += "}\n"
         return output
 
-    def setMarkdown(self, component, nb_components=1):
+    def markdown_format(self, component):
         output = "Pinout for "+component.GetReference()+" ("+component.GetValue()+"):\n\n"
         pinout = get_pins(component)
         max_len_num, max_len_name, max_fn_name = len('Pin number'),len('Pin net'), len('Pin name')
@@ -220,7 +209,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output += "| " + pad.GetNumber() + ' '*(max_len_num-len(pad.GetNumber())) + " | "  + pad.GetPinFunction() + ' '*(max_fn_name-len(pad.GetPinFunction())) + " | " +  get_pin_name_unless_NC(pad) + ' '*(max_len_name-len(get_pin_name_unless_NC(pad))) + " |\n"
         return output
 
-    def wireviz_format(self, component, nb_components=1):
+    def wireviz_format(self, component):
         output = "    "+component.GetReference()+":\n"
         output += "        type: "+component.GetValue()+"\n"
         pins_output = "        pins: ["
@@ -233,9 +222,9 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         output += pinlabels_output+"]\n"
         return output
 
-    def setXDC(self, component, nb_components=1):
+    def xdc_format(self, component):
         added_vars = []
-        output = "## Pinout generated for "+component.GetReference()+"\n"
+        output = "## Pinout generated for "+component.GetReference()+" ("+component.GetValue()+")\n"
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
@@ -246,9 +235,9 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output += "set_property -dict { PACKAGE_PIN "+pad.GetNumber()+"    IOSTANDARD LVCMOS33 } [get_ports { "+var_name+" }];\n"
         return output
 
-    def setPDC(self, component, nb_components=1):
+    def pdc_format(self, component):
         added_vars = []
-        output = "## Pinout generated for "+component.GetReference()+"\n"
+        output = "## Pinout generated for "+component.GetReference()+" ("+component.GetValue()+")\n"
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
@@ -284,9 +273,9 @@ class PinoutGenerator(pcbnew.ActionPlugin):
 
         # WX setup
         dialog = PinoutDialog(None)
-        dialog.output_format.Bind( wx.EVT_CHOICE, self.change_format )
-        dialog.pinNameCB.Bind( wx.EVT_CHECKBOX, self.change_format )
-        dialog.pinNameFilter.Bind( wx.EVT_TEXT, self.change_format )
+        dialog.output_format.Bind(wx.EVT_CHOICE, self.change_format)
+        dialog.pinNameCB.Bind(wx.EVT_CHECKBOX, self.change_format)
+        dialog.pinNameFilter.Bind(wx.EVT_TEXT, self.change_format)
 
         # wx form controls
         self.set_result = dialog.result.SetValue
