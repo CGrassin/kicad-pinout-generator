@@ -8,6 +8,19 @@ import re
 
 from . import pinout_generator_result
 
+SELECTOR = {
+    'list':0,
+    'csv':1,
+    'html':2,
+    'md':3,
+    'c_enum':4,
+    'c_define':5,
+    'python_dict':6,
+    'wireviz':7,
+    'fpga_xdc':8,
+    'fpga_pdc':9
+}
+
 class PinoutDialog(pinout_generator_result.PinoutDialog):
     def onDeleteClick(self, event):
         return self.EndModal(wx.ID_DELETE)
@@ -55,6 +68,12 @@ def kicad_net_to_HTML(string):
 def get_pin_name_unless_NC(pad):
     return (pad.GetNetname() if pad_is_connected(pad) else 'NC')
 
+def filter_pinname(pinName, filt):
+    '''Returns '''
+    if filt and re.match(r'.*'+filt+'[0-9]+.*', pinName):
+        return re.sub(r'.*'+filt+'([0-9]+).*', r'\1', pinName)
+    return pinName
+
 class PinoutGenerator(pcbnew.ActionPlugin):
     def defaults(self):
         self.name = "Pinout Generator"
@@ -64,37 +83,39 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         self.icon_file_name = os.path.join(os.path.dirname(__file__), 'logo.png')
 
     def change_format( self, event ):
+        self.enable_cb(self.get_selection() in [SELECTOR['c_enum'], SELECTOR['c_define'], SELECTOR['python_dict']])
+        self.enable_filter(self.is_pinname_not_number())
         self.set_output(self.get_selection())
         event.Skip()
 
-    def set_output(self, selection=0):
+    def set_output(self, selection):
         output = ""   
-        if selection == 0: #list
+        if selection == SELECTOR['list']:
             output_formater = self.setList
-        if selection == 1: # CSV
+        if selection == SELECTOR['csv']:
             output_formater = self.setCSV
-        elif selection == 2: # HTML table
+        elif selection == SELECTOR['html']:
             output_formater = self.setHTML
-        elif selection == 3: # MD table
+        elif selection == SELECTOR['md']:
             output_formater = self.setMarkdown
-        elif selection == 4: # C/Cpp enum
+        elif selection == SELECTOR['c_enum']:
             output_formater = self.setCCode_enum
-        elif selection == 5: # C/Cpp define
+        elif selection == SELECTOR['c_define']:
             output_formater = self.setCCode_define
             if len(self.footprint_selection) > 1:
                 self.set_result("This format is not compatible with multiple selection. Only select a single component.")
                 return
-        elif selection == 6: # Python dict
+        elif selection == SELECTOR['python_dict']:
             output_formater = self.set_python
-        elif selection == 7:
+        elif selection == SELECTOR['wireviz']:
+            output_formater = self.wireviz_format
+            output = "connectors:\n"
+        elif selection == SELECTOR['fpga_xdc']:
             output_formater = self.setXDC
             if len(self.footprint_selection) > 1:
                 self.set_result("This format is not compatible with multiple selection. Only select a single component.")
                 return
-        elif selection == 8:
-            output_formater = self.wireviz_format
-            output = "connectors:\n"
-        elif selection == 9:
+        elif selection == SELECTOR['fpga_pdc']:
             output_formater = self.setPDC
             if len(self.footprint_selection) > 1:
                 self.set_result("This format is not compatible with multiple selection. Only select a single component.")
@@ -139,11 +160,13 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
-            if var_name in added_vars or not pad.GetNumber().isdigit() or not pad_is_connected(pad) or pad_is_power(pad):
+            var_value = filter_pinname(pad.GetPinFunction(),self.get_pin_name_filter()) if self.is_pinname_not_number() else pad.GetNumber()
+
+            if var_name in added_vars or not var_value.isdigit() or not pad_is_connected(pad) or pad_is_power(pad):
                  output += "//"
             else:
                  added_vars.append(var_name)
-            output += "\t" + var_name + "=" + pad.GetNumber()+",\n" 
+            output += "\t" + var_name + "=" + var_value +",\n" 
         output += "};\n"
         return output
 
@@ -153,11 +176,13 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_define(pad.GetNetname())
+            var_value = filter_pinname(pad.GetPinFunction(),self.get_pin_name_filter()) if self.is_pinname_not_number() else pad.GetNumber()
+
             if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad):
                  output += "// "
             else:
                  added_vars.append(var_name)
-            output += "#define " + var_name + " " + pad.GetNumber()+"\n" 
+            output += "#define " + var_name + " " + var_value +"\n" 
         return output
 
     def set_python(self, component, nb_components=1):
@@ -166,15 +191,17 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
+            var_value = filter_pinname(pad.GetPinFunction(),self.get_pin_name_filter()) if self.is_pinname_not_number() else pad.GetNumber()
+
             if var_name in added_vars or not pad_is_connected(pad) or pad_is_power(pad):
                  output += "#"
             else:
                  added_vars.append(var_name)
             output += "    \'" + var_name + "\' : "
-            if pad.GetNumber().isdigit():
-                output += pad.GetNumber() + ',\n'
+            if var_value.isdigit():
+                output += var_value + ',\n'
             else:
-                output += "\'" + pad.GetNumber() + "\'" + ',\n'
+                output += "\'" + var_value + "\'" + ',\n'
         output += "}\n"
         return output
 
@@ -250,18 +277,26 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         # except Exception: 
         #     pass
 
-        # check selection len
+        # Check selection len
         if len(self.footprint_selection ) < 1:
             wx.MessageBox("Select at least one component!")
             return
 
-        # set up and show the GUI
+        # WX setup
         dialog = PinoutDialog(None)
         dialog.output_format.Bind( wx.EVT_CHOICE, self.change_format )
-        # self.is_pinname_not_number = dialog.pinname_cb.GetValue()
-        # dialog.pinname_cb.Bind( wx.EVT_CHECKBOX, self.change_format )
+        dialog.pinNameCB.Bind( wx.EVT_CHECKBOX, self.change_format )
+        dialog.pinNameFilter.Bind( wx.EVT_TEXT, self.change_format )
+
+        # wx form controls
         self.set_result = dialog.result.SetValue
         self.get_selection = dialog.output_format.GetSelection
-        self.set_output() # set result to default format
+        self.enable_cb = dialog.pinNameCB.Enable
+        self.is_pinname_not_number = dialog.pinNameCB.GetValue
+        self.get_pin_name_filter = dialog.pinNameFilter.GetValue
+        self.enable_filter = dialog.pinNameFilter.Enable
+
+        # Init output
+        self.set_output(self.get_selection())
         modal_result = dialog.ShowModal()
         dialog.Destroy()
