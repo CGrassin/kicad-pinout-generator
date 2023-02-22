@@ -13,6 +13,7 @@ cp ../pinout_generator_result.py release/plugins/
 cp ../pinout_plugin.py release/plugins/
 
 cd release
-zip -r ../release.zip .
+version=$(gawk '/"version"/{print gensub(/.*:.*"([0-9.]+)".*/,"\\1","g")}' metadata.json)
+zip -r "../kicad-pinout-generator_$version.zip" .
 cd ..
 rm -R release
