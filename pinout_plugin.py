@@ -78,7 +78,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
     def defaults(self):
         self.name = "Pinout Generator"
         self.category = "Read PCB"
-        self.description = "Generates a pinout table from the PCB nets"
+        self.description = "Generates pinout exports from the PCB nets"
         self.show_toolbar_button = True
         self.icon_file_name = os.path.join(os.path.dirname(__file__), 'logo.png')
 

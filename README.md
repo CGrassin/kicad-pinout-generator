@@ -22,7 +22,7 @@ Example applications:
 * Automatically create the pin assignement from a microcontroller to C code,
 * Generate interface documents for connectors.
 
-![HTML and C sample output](./pictures/sample_output.png)
+![HTML and C sample output](./resources/sample_output.png)
 *Example of a export as HTML (left) and C/C++ enum (right)*
 
 ## Install instructions

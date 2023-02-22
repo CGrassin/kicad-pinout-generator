@@ -1,0 +1,26 @@
+{
+    "$schema": "https://go.kicad.org/pcm/schemas/v1",
+    "name": "Pinout Generator",
+    "description": "Generates pinouts of components from a PCB file to various formats",
+    "description_full": "This KiCad plugin generates pinouts of components from a PCB file to various formats:\n\u2022 Text formats for documentation: Markdown table, HTML table, CSV, List (tab separated), WireViz\n\u2022 Code format for software development: C/C++ enums, C/C++ #define, Python/MicroPython dict., Xilinx XDC constraint (FPGA), Microsemi PDC constraint (FPGA)\n\nExample applications:\n\u2022 Automatically create the pin assignement from a microcontroller to C code,\n\u2022 Generate interface documents for connectors.",
+    "identifier": "com.github.cgrassin.kicad-pinout-generator",
+    "type": "plugin",
+    "author": {
+        "name": "Charles Grassin",
+        "contact": {
+            "github": "https://github.com/CGrassin",
+            "web": "https://charleslabs.fr"
+        }
+    },
+    "license": "MIT",
+    "resources": {
+        "homepage": "https://github.com/CGrassin/kicad-pinout-generator"
+    },
+    "versions": [
+        {
+            "version": "1.0",
+            "status": "stable",
+            "kicad_version": "6.0"
+        }
+    ]
+}
