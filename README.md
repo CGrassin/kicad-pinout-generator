@@ -27,12 +27,17 @@ Example applications:
 
 ## Install instructions
 
-This plugin has been developped for KiCad 6.
-To install it:
-1. Clone or download the repository and extract it to your KiCad plugin folder. You can find it by opening the PCB editor, and using "Tools" > "Externals Plugins" > "Open Plugin Directory".
-2. Refresh the plugins by restarting the PCB editor or using "Tools" > "Externals Plugins" > "Refresh Plugins".
+### Method A: Plugin and Content Manager (recommended)
 
-*The toolbar button can be shown or hidden in "Preferences" > "Action Plugins".*
+The easiest way to install this plugin is to open KiCad's Plugin and Content Manager, look for "Pinout Generator" and press "Install"!
+
+![Pinout Generator in the PCM](./resources/pcm.png)
+
+### Method B: Manual install (for development versions)
+
+To install the plugin from GitHub:
+1. Clone/download this repository and extract it to your KiCad plugin folder. You can find it by opening the PCB editor, and using "Tools" > "Externals Plugins" > "Open Plugin Directory".
+2. Refresh the plugins by restarting the PCB editor or using "Tools" > "Externals Plugins" > "Refresh Plugins".
 
 ## Usage instructions
 
