@@ -19,7 +19,7 @@ This KiCad plugin generates pinouts of components from a PCB file to various for
     * Microsemi PDC constraint (FPGA)
 
 Example applications:
-* Automatically create the pin assignement from a microcontroller to C code,
+* Automatically create the pin assignment from a microcontroller to C code,
 * Generate interface documents for connectors.
 
 ![HTML and C sample output](./resources/sample_output.png)
@@ -46,11 +46,11 @@ To use the plugin:
 2. Run the plugin by using the toolbar button or the Plugins menu,
 3. Choose the desired format with the drop-down menu and copy-paste the result!
 
-**This plugins only gives useful ouput if the pins have net names.** Use labels in the schematic editor to give the nets a human-readable name.
+**This plugins only gives useful output if the pins have net names.** Use labels in the schematic editor to give the nets a human-readable name.
 
-Note: in the generated code, both unconnected and power nets are ignored (commented in the ouput).
+Note: in the generated code, both unconnected and power nets are ignored (commented in the output).
 
-For C/C++ and Python format, there is a checkbox to use the pin name istead of pin number as the variable value. When checked, a filter can also be entered:
+For C/C++ and Python format, there is a checkbox to use the pin name instead of pin number as the variable value. When checked, a filter can also be entered:
 * If the filter is left empty, the full pin name is used.
 * If something is entered, the plugin looks for this in the pin name, and extract the number after this string. For instance, if a pin name is "GPIO64/SPI", entering "GPIO" as filter will result in "64" in the output.
 

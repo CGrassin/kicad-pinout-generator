@@ -44,13 +44,7 @@ def str_to_C_variable(string):
     return out
     
 def str_to_C_define(string):
-    out = string.upper()
-    out = re.sub(r'[ /]', '', out)
-    out = re.sub(r'-', 'N', out)
-    out = re.sub(r'\+', 'P', out)
-    out = re.sub(r'[^a-zA-Z0-9_]', '', out)
-    out = re.sub(r'_+', '_', out)
-    return out
+    return str_to_C_variable(string).upper()
 
 def get_pins(component):
     pinout = []
@@ -66,7 +60,7 @@ def kicad_net_to_HTML(string):
     return out
 
 def get_pin_name_unless_NC(pad):
-    return (pad.GetNetname() if pad_is_connected(pad) else 'NC')
+    return (re.sub(r'^/', '', pad.GetNetname()) if pad_is_connected(pad) else 'NC')
 
 def filter_pinname(pinName, filt):
     '''Filters a number out of a pin name'''
@@ -217,7 +211,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinout = get_pins(component)
         for pad in pinout:
             pins_output += pad.GetNumber()+", "
-            pinlabels_output += pad.GetNetname()+", "
+            pinlabels_output += re.sub(r'^/', '', pad.GetNetname())+", "
         output += pins_output+"]\n"
         output += pinlabels_output+"]\n"
         return output
