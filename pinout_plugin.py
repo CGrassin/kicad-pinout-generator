@@ -34,8 +34,8 @@ def pad_is_power(pad):
 def pad_is_passive(pad):
     return 'passive' in pad.GetPinType()
 
-def str_to_C_variable(string):
-    out = "pin_" + string
+def str_to_C_variable(string, prefix = "pin_"):
+    out = prefix + string
     out = re.sub(r'[ /]', '_', out)
     out = re.sub(r'-', 'N', out)
     out = re.sub(r'\+', 'P', out)
@@ -46,6 +46,30 @@ def str_to_C_variable(string):
 def str_to_C_define(string):
     return str_to_C_variable(string).upper()
 
+def escape_html(string, decorate=False):
+    out = re.sub(r'&', '&amp;', string)
+    out = re.sub(r'<', '&lt;', out)
+    out = re.sub(r'>', '&gt;', out)
+    if decorate:
+        out = re.sub(r'~{(.+)}', r'<span style="text-decoration:overline">\1</span>', out)
+    return out
+
+def escape_markdown(string):
+    out = escape_html(string)
+    out = re.sub(r'\|', '&#124;', out)
+    out = re.sub(r'_', '\\_', out)
+    out = re.sub(r'\*', '\\*', out)
+    return out
+
+def escape_csv(string,sep=""):
+    out = re.sub(r'\"', '""', string)
+    out = re.sub(sep, '', out)
+    return out
+
+def escape_wireviz(string):
+    out = re.sub(r',', '', string)
+    return out
+
 def get_pins(component):
     pinout = []
     added_pads = [] 
@@ -54,10 +78,6 @@ def get_pins(component):
             pinout.append(pad)
             added_pads.append(pad.GetNumber())
     return pinout
-
-def kicad_net_to_HTML(string):
-    out = re.sub(r'~{(.+)}', r'<span style="text-decoration:overline">\1</span>', string)
-    return out
 
 def get_pin_name_unless_NC(pad):
     return (re.sub(r'^/', '', pad.GetNetname()) if pad_is_connected(pad) else 'NC')
@@ -115,31 +135,35 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output += output_formater(component)
         self.set_result(output)
 
-    def csv_format(self, component, sep=",", quote="\""):
+    def csv_format(self, component, sep=",", quote="\""): # FIXME unsafe
         output = ""
         pinout = get_pins(component)
         for pad in pinout:
             if len(self.footprint_selection) > 1:
-                output += quote + component.GetReference() + quote + sep 
-            output += quote + pad.GetNumber() + quote + sep + quote + pad.GetPinFunction() + quote + sep + quote +  get_pin_name_unless_NC(pad) + quote + "\n"
+                output += quote + escape_csv(component.GetReference(),sep) + quote + sep 
+            output += (quote + escape_csv(pad.GetNumber(),sep) + quote + sep + quote + 
+                escape_csv(pad.GetPinFunction(),sep) + quote + sep + quote +  
+                escape_csv(get_pin_name_unless_NC(pad),sep) + quote + "\n")
         return output
 
     def list_format(self, component):
         return self.csv_format(component, "\t", "")
 
     def html_format(self, component): # FIXME HTML escape chars
-        output =  "<p>Pinout for "+component.GetReference()+" ("+component.GetValue()+"):</p>\n"
+        output =  "<p>Pinout for "+escape_html(component.GetReference())+" ("+escape_html(component.GetValue())+"):</p>\n"
         output += "<table>\n"
         output += "\t<tr><th>Pin number</th><th>Pin name</th><th>Pin net</th></tr>\n"
         pinout = get_pins(component)
         for pad in pinout:
-            output += "\t<tr><td>" + pad.GetNumber() + "</td><td>" + pad.GetPinFunction() + "</td><td>" +  kicad_net_to_HTML(get_pin_name_unless_NC(pad)) + "</td></tr>\n"
+            output += ("\t<tr><td>" + escape_html(pad.GetNumber()) + "</td><td>" + 
+                escape_html(pad.GetPinFunction(),True) + "</td><td>" +  
+                escape_html(get_pin_name_unless_NC(pad), True) + "</td></tr>\n")
         output += "</table>\n"
         return output
 
     def c_enum_format(self, component):
         added_vars = []
-        output = "enum pinout_"+component.GetReference()+"{\n"
+        output = "enum pinout_" + str_to_C_variable(component.GetReference(),"")  + "{\n" # FIXME unsafe
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
@@ -170,7 +194,7 @@ class PinoutGenerator(pcbnew.ActionPlugin):
 
     def python_dict_format(self, component):
         added_vars = []
-        output = "pinout_"+component.GetReference()+" = {\n"
+        output = "pinout_"+str_to_C_variable(component.GetReference(),"")+" = {\n"
         pinout = get_pins(component)
         for pad in pinout:
             var_name = str_to_C_variable(pad.GetNetname())
@@ -189,18 +213,22 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         return output
 
     def markdown_format(self, component):
-        output = "Pinout for "+component.GetReference()+" ("+component.GetValue()+"):\n\n"
+        output = "Pinout for "+escape_markdown(component.GetReference())+" ("+escape_markdown(component.GetValue())+"):\n\n"
         pinout = get_pins(component)
         max_len_num, max_len_name, max_fn_name = len('Pin number'),len('Pin net'), len('Pin name')
         for pad in pinout:
             max_fn_name = max(max_fn_name, len(pad.GetPinFunction()))
             max_len_num = max(max_len_num, len(pad.GetNumber()))
             max_len_name = max(max_len_name, len( get_pin_name_unless_NC(pad)))
-        output += "| Pin number" + ' '*(max_len_num-len('Pin number')) + " | Pin name" + ' '*(max_fn_name-len('Pin name')) + " | Pin net" + ' '*(max_len_name-len('Pin net')) + " |\n"
+
+        output += ("| Pin number" + ' '*(max_len_num-len('Pin number')) + " | Pin name" + 
+            ' '*(max_fn_name-len('Pin name')) + " | Pin net" + ' '*(max_len_name-len('Pin net')) + " |\n")
         output +="|---"+'-'*(max_len_num-1)+"|---"+'-'*(max_fn_name-1)+"|---"+'-'*(max_len_name-1)+"|\n"
         
         for pad in pinout:
-            output += "| " + pad.GetNumber() + ' '*(max_len_num-len(pad.GetNumber())) + " | "  + pad.GetPinFunction() + ' '*(max_fn_name-len(pad.GetPinFunction())) + " | " +  get_pin_name_unless_NC(pad) + ' '*(max_len_name-len(get_pin_name_unless_NC(pad))) + " |\n"
+            output += ("| " + escape_markdown(pad.GetNumber()) + ' '*(max_len_num-len(pad.GetNumber())) + " | "  + escape_markdown(pad.GetPinFunction()) +
+                ' '*(max_fn_name-len(pad.GetPinFunction())) + " | " +  escape_markdown(get_pin_name_unless_NC(pad)) + 
+                ' '*(max_len_name-len(get_pin_name_unless_NC(pad))) + " |\n")
         return output
 
     def wireviz_format(self, component):
@@ -210,8 +238,8 @@ class PinoutGenerator(pcbnew.ActionPlugin):
         pinlabels_output = "        pinlabels: ["
         pinout = get_pins(component)
         for pad in pinout:
-            pins_output += pad.GetNumber()+", "
-            pinlabels_output += re.sub(r'^/', '', pad.GetNetname())+", "
+            pins_output += escape_wireviz(pad.GetNumber())+", "
+            pinlabels_output += re.sub(r'^/', '', escape_wireviz(get_pin_name_unless_NC(pad)))+", "
         output += pins_output+"]\n"
         output += pinlabels_output+"]\n"
         return output
