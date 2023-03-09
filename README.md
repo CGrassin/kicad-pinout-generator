@@ -57,3 +57,5 @@ For C/C++ and Python format, there is a checkbox to use the pin name instead of 
 ## License
 
 This plugin is published under MIT license.
+
+*View my other KiCad plugin:* https://github.com/CGrassin/kicad-auto-silkscreen
