@@ -18,7 +18,8 @@ SELECTOR = {
     'python_dict':6,
     'wireviz':7,
     'fpga_xdc':8,
-    'fpga_pdc':9
+    'fpga_pdc':9,
+    'rust':10
 }
 
 class PinoutDialog(pinout_generator_result.PinoutDialog):
@@ -128,6 +129,8 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             output_formater = self.xdc_format
         elif selection == SELECTOR['fpga_pdc']:
             output_formater = self.pdc_format
+        elif selection == SELECTOR['rust']:
+            output_formater = self.rust_format
 
         # checks for format n
         for component in self.footprint_selection:
@@ -268,6 +271,21 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             else:
                 added_vars.append(var_name)
             output += "set_io "+var_name+" -pinname "+pad.GetNumber()+" -fixed yes"+"\n"
+        return output
+
+    def rust_format(self, component):
+        added_vars = []
+        output = "// Pinout generated for "+component.GetReference()+" ("+component.GetValue()+")\n"
+        output = "pub enum " + component.GetReference() + " {\n"
+        pinout = get_pins(component)
+        for pad in pinout:
+            var_name = str_to_C_variable("pin_" + pad.GetNetname())
+            if var_name in added_vars:
+                output += "//"
+            if pad_is_connected(pad) and not (pad_is_power(pad) or pad_is_passive(pad)):
+                output += "\t" + var_name+" = "+pad.GetNumber()+",\n"
+                added_vars.append(var_name)
+        output += "}\n"
         return output
 
 
