@@ -11,8 +11,13 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.List;
@@ -28,18 +33,27 @@ public class MainActivity extends AppCompatActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Set up ListView
-        final ListView listView = findViewById(R.id.sheetsList) ;
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        // Get result list
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainRootLayout), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Apply bottom padding for navigation bar
+            v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom);
+            // Apply top padding to toolbar for status bar
+            toolbar.setPadding(0, systemBars.top, 0, 0);
+            return insets;
+        });
+
+        final ListView listView = findViewById(R.id.sheetsList) ;
         List<MusicSheet> listData = MusicDB.getInstance(this).musicDB;
         adapter = new SheetsAdapter(this, listData, findViewById(R.id.noResultsFoundView));
         listView.setAdapter(adapter);
 
-        // Handle click on item
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id){
@@ -50,7 +64,6 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
 
-        // Handle contact button
         findViewById(R.id.mainActivity_contact).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,43 +77,23 @@ public class MainActivity extends AppCompatActivity  {
                 }
             }
         });
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        final MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-
-        //final MenuItem aboutItem = menu.findItem(R.id.mainAction_about);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         final MenuItem searchItem = menu.findItem(R.id.mainAction_search);
         final SearchView searchView = (SearchView) searchItem.getActionView();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+            public boolean onQueryTextSubmit(String query) { return false; }
             @Override
             public boolean onQueryTextChange(String newText) {
                 adapter.getFilter().filter(newText);
                 return true;
             }
         });
-
-        /*searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                aboutItem.setVisible(false);
-                return true;
-            }
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                aboutItem.setVisible(true);
-                return true;
-            }
-        });*/
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -110,7 +103,12 @@ public class MainActivity extends AppCompatActivity  {
             DialogFragment dialogFragment = new AppCreditsDialog();
             dialogFragment.show(getSupportFragmentManager(),"dialog");
         }
-
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.refreshBookmarks();
     }
 }

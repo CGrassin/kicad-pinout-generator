@@ -1,69 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tabRootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TabActivity"
-    android:keepScreenOn="true">
+    android:orientation="vertical"
+    android:keepScreenOn="true"
+    tools:context=".TabActivity">
 
-    <ScrollView
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="fr.charleslabs.tinwhistletabs.TabActivity"
-        android:id="@+id/TabActivity_tabScrollPane"
-        android:layout_above="@id/TabActivity_mediaBtn"
-        android:layout_alignParentTop="true">
-        <TextView
-            android:id="@+id/TabActivity_tab"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ScrollView
+            android:id="@+id/TabActivity_tabScrollPane"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textSize="100sp"
-            android:gravity="left"
-            android:padding="10dp"
-            android:lineSpacingMultiplier="1.1"
-            android:fontFamily="@font/tinwhistletab"
-            tools:ignore="RtlHardcoded" />
-    </ScrollView>
+            android:layout_above="@id/TabActivity_mediaBtn"
+            android:layout_alignParentTop="true">
+            <TextView
+                android:id="@+id/TabActivity_tab"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:textSize="100sp"
+                android:gravity="left"
+                android:padding="10dp"
+                android:lineSpacingMultiplier="1.1"
+                android:fontFamily="@font/tinwhistletab"
+                tools:ignore="RtlHardcoded" />
+        </ScrollView>
 
-    <LinearLayout
-        android:id="@+id/TabActivity_mediaBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:gravity="center">
-        <Button
-            android:id="@+id/TabActivity_btnPlayPause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/TabActivity_playPause"
-            style="@style/Widget.AppCompat.Button.Colored"
-            tools:ignore="RtlHardcoded" />
-        <Button
-            android:id="@+id/TabActivity_btnStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/TabActivity_stop"
-            style="@style/Widget.AppCompat.Button.Colored"/>
-        <Button
-            android:id="@+id/TabActivity_btnInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/TabActivity_more"
-            style="@style/Widget.AppCompat.Button.Colored"/>
-    </LinearLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/TabActivity_countdown"
-            android:visibility="gone"
+        <LinearLayout
+            android:id="@+id/TabActivity_mediaBtn"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColor="#000"
-            android:alpha="0.5"
-            android:textSize="250dp"
-            android:gravity="center" />
-    </FrameLayout>
-</RelativeLayout>
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="center">
+            <Button
+                android:id="@+id/TabActivity_btnPlayPause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/TabActivity_playPause"
+                style="@style/Widget.AppCompat.Button.Colored"
+                tools:ignore="RtlHardcoded" />
+            <Button
+                android:id="@+id/TabActivity_btnStop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/TabActivity_stop"
+                style="@style/Widget.AppCompat.Button.Colored"/>
+            <Button
+                android:id="@+id/TabActivity_btnInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/TabActivity_score"
+                style="@style/Widget.AppCompat.Button.Colored"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/TabActivity_countdown"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="#000"
+                android:alpha="0.5"
+                android:textSize="250dp"
+                android:gravity="center" />
+        </FrameLayout>
+    </RelativeLayout>
+</LinearLayout>

@@ -1,26 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainRootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-    <ListView
-        android:id="@+id/sheetsList"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/sheetsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <LinearLayout
             android:id="@+id/noResultsFoundView"
             android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/mainActivity_no_results"
-            android:padding="10dp"
-            android:textSize="18sp"
-            android:textAlignment="center"
-            android:gravity="center_horizontal" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mainActivity_no_results"
+                android:padding="10dp"
+                android:textSize="18sp"
+                android:textAlignment="center"
+                android:gravity="center_horizontal" />
             <Button
                 android:id="@+id/mainActivity_contact"
                 android:layout_width="wrap_content"
@@ -28,4 +48,5 @@
                 android:text="@string/mainActivity_request_a_tune"
                 style="@style/Widget.AppCompat.Button.Colored"/>
         </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

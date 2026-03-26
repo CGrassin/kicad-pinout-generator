@@ -1,6 +1,7 @@
 package fr.charleslabs.tinwhistletabs;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,8 +18,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.List;
@@ -47,7 +54,7 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
     private  boolean isPlaying = false;
     private MusicSheet sheet = null;
     private int tempo = MusicSettings.DEFAULT_TEMPO;
-    private Handler musicHandler = new Handler();
+    private final Handler musicHandler = new Handler();
     private List<MusicNote> notes;
     private int scroll_value = -1;
 
@@ -56,6 +63,7 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
     private Spannable span = null;
     private  TextView tab = null;
     private  TextView countdownOverlay = null;
+    private Menu menu;
 
     // Zoom
     private ScaleGestureDetector mScaleDetector;
@@ -65,8 +73,27 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.tabRootLayout), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, 0, systemBars.right, systemBars.bottom);
+            toolbar.setPadding(0, systemBars.top, 0, 0);
+            return insets;
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                stop();
+                finish();
+            }
+        });
 
         // Get data
         final Intent intent = getIntent();
@@ -119,28 +146,42 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
         mScaleDetector = new ScaleGestureDetector(this, new TextViewScaleGestureDetector(tab));
         // Tap on TextView
         tab.setOnTouchListener(new SingleTapTouchListener(this));
+        // Bookmarks
+        updateBookmarkUI();
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.tabAction_tempo:
-                final DialogFragment tempoDialog = new TempoDialog(tempo, MusicSettings.isStartDelayed, this);
-                tempoDialog.show(getSupportFragmentManager(),"dialog");
-                break;
-            case R.id.tabAction_key:
-                final DialogFragment keyDialog = new KeyDialog(MusicSettings.currentKey, this);
-                keyDialog.show(getSupportFragmentManager(),"dialog");
-                break;
-            case R.id.tabAction_more:
-                final SheetInfoDialog sheetInfoDialog = new SheetInfoDialog(getApplicationContext(), sheet);
-                sheetInfoDialog.show(getSupportFragmentManager(),"dialog");
-                break;
-            case android.R.id.home:
-                this.stop();
-                finish();
-                break;
+        int id = item.getItemId();
+
+        if (id == R.id.tabAction_tempo) {
+            final DialogFragment tempoDialog = new TempoDialog(tempo, MusicSettings.isStartDelayed, this);
+            tempoDialog.show(getSupportFragmentManager(), "dialog");
+        } else if (id == R.id.tabAction_key) {
+            final DialogFragment keyDialog = new KeyDialog(MusicSettings.currentKey, this);
+            keyDialog.show(getSupportFragmentManager(), "dialog");
+        } else if (id == R.id.tabAction_more) {
+            final SheetInfoDialog sheetInfoDialog = new SheetInfoDialog(getApplicationContext(), sheet);
+            sheetInfoDialog.show(getSupportFragmentManager(), "dialog");
+        } else if (id == android.R.id.home) {
+            this.stop();
+            finish();
+        } else if (id == R.id.tabAction_bookmark) {
+            MusicDB.getInstance(this).bookmarks.toggle(sheet.getFile());
+            updateBookmarkUI();
         }
         return true;
+    }
+
+    private void updateBookmarkUI() {
+        if (menu == null) return;
+        MenuItem bookmarkItem = menu.findItem(R.id.tabAction_bookmark);
+        if (MusicDB.getInstance(this).bookmarks.isBookmarked(sheet.getFile())) {
+            bookmarkItem.setIcon(R.drawable.ic_star);
+            bookmarkItem.setTitle(R.string.TabActivity_remove_bookmark);
+        } else {
+            bookmarkItem.setIcon(R.drawable.ic_star_border);
+            bookmarkItem.setTitle(R.string.TabActivity_add_bookmark);
+        }
     }
 
     private void setTune(){
@@ -171,6 +212,7 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void countdown(final int stepsLeft){
         countdownOverlay.setVisibility(View.VISIBLE);
         countdownOverlay.setText(Integer.toString(stepsLeft+1));
@@ -247,8 +289,10 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         final MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.tab_menu, menu);
+        updateBookmarkUI(); // <-- move the call here, menu is ready now
         return true;
     }
 
@@ -290,13 +334,6 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
         AndroidUtils.clearSpans(span);
         drawCursor(false);
         MusicPlayer.getInstance().move(MusicSheet.noteIndexToTime(notes, cursorPos,(float)tempo/100f));
-    }
-
-    // Back capture
-    @Override
-    public void onBackPressed(){
-        this.stop();
-        super.onBackPressed();
     }
 
 }

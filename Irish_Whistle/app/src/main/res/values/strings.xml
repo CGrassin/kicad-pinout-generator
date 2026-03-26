@@ -41,7 +41,8 @@
     <!-- Tab activity -->
     <string name="TabActivity_playPause">Play/Pause</string>
     <string name="TabActivity_stop">Stop</string>
-    <string name="TabActivity_more">Score</string>
+    <string name="TabActivity_more">Details</string>
+    <string name="TabActivity_score">Score</string>
 
     <!-- Sheet activity -->
     <string name="sheetActivity_title">Score: %1$s</string>
@@ -56,4 +57,10 @@
     <!-- Error messages -->
     <string name="error_contact">Could not send mail: %1$s</string>
     <string name="error_tune_generation">Media playback disabled: %1$s</string>
+
+    <!-- Error messages -->
+    <string name="TabActivity_add_bookmark">Add bookmark</string>
+    <string name="TabActivity_remove_bookmark">Remove bookmark</string>
+    <string name="header_bookmarks">★ Bookmarks (%d)</string>
+    <string name="header_all_tunes">All Tunes (%d)</string>
 </resources>

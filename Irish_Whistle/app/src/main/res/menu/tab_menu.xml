@@ -12,8 +12,14 @@
         android:icon="@drawable/ic_music_note"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/tabAction_bookmark"
+        android:title="@string/TabActivity_remove_bookmark"
+        android:icon="@drawable/ic_star_border"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/tabAction_more"
         android:title="@string/TabActivity_more"
         android:icon="@drawable/ic_more"
         app:showAsAction="ifRoom" />
+
 </menu>

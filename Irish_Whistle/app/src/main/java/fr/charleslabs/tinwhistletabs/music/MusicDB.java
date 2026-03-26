@@ -14,6 +14,7 @@ import fr.charleslabs.tinwhistletabs.utils.Utils;
 
 public class MusicDB {
     public List<MusicSheet> musicDB = new ArrayList<>();
+    public BookmarkManager bookmarks;
 
     //Singleton
     private static MusicDB instance;
@@ -32,6 +33,10 @@ public class MusicDB {
             for (int i=0; i < jsonSheets.length(); i++) {
                 musicDB.add(new MusicSheet(jsonSheets.getJSONObject(i)));
             }
+
+            // Get bookmarks
+            bookmarks = new BookmarkManager(c);
+
         } catch (IOException | JSONException e) {
             // @TODO : REACT TO THIS
             e.printStackTrace();
