@@ -27,6 +27,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
@@ -150,18 +151,22 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
         updateBookmarkUI();
     }
 
+    private void showDialogOnce(String tag, DialogFragment dialog) {
+        Fragment existing = getSupportFragmentManager().findFragmentByTag(tag);
+        if (existing == null) {
+            dialog.show(getSupportFragmentManager(), tag);
+        }
+    }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.tabAction_tempo) {
-            final DialogFragment tempoDialog = new TempoDialog(tempo, MusicSettings.isStartDelayed, this);
-            tempoDialog.show(getSupportFragmentManager(), "dialog");
+            showDialogOnce("tempo", new TempoDialog(tempo, MusicSettings.isStartDelayed, this));
         } else if (id == R.id.tabAction_key) {
-            final DialogFragment keyDialog = new KeyDialog(MusicSettings.currentKey, this);
-            keyDialog.show(getSupportFragmentManager(), "dialog");
+            showDialogOnce("key", new KeyDialog(MusicSettings.currentKey, this));
         } else if (id == R.id.tabAction_more) {
-            final SheetInfoDialog sheetInfoDialog = new SheetInfoDialog(getApplicationContext(), sheet);
-            sheetInfoDialog.show(getSupportFragmentManager(), "dialog");
+            showDialogOnce("info", new SheetInfoDialog(getApplicationContext(), sheet));
         } else if (id == android.R.id.home) {
             this.stop();
             finish();
@@ -171,7 +176,6 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
         }
         return true;
     }
-
     private void updateBookmarkUI() {
         if (menu == null) return;
         MenuItem bookmarkItem = menu.findItem(R.id.tabAction_bookmark);
@@ -185,15 +189,19 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
     }
 
     private void setTune() {
-        // Disable buttons while loading
         findViewById(R.id.TabActivity_btnPlayPause).setEnabled(false);
         findViewById(R.id.TabActivity_btnStop).setEnabled(false);
 
         new Thread(() -> {
             try {
-                final byte[] track = MusicPlayer.genMusic(notes, (float) tempo / 100f);
+                final byte[] track = MusicSettings.isPlaybackEnabled()
+                        ? MusicPlayer.genMusic(notes, (float) tempo / 100f)
+                        : null;
                 runOnUiThread(() -> {
-                    MusicPlayer.getInstance().setAudioTrack(track);
+                    if (track != null)
+                        MusicPlayer.getInstance().setAudioTrack(track);
+                    else
+                        MusicPlayer.getInstance().clearAudioTrack();
                     findViewById(R.id.TabActivity_btnPlayPause).setEnabled(true);
                     findViewById(R.id.TabActivity_btnStop).setEnabled(true);
                 });
@@ -202,7 +210,6 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
                     Toast.makeText(TabActivity.this,
                             getString(R.string.error_tune_generation, e.getMessage()),
                             Toast.LENGTH_SHORT).show();
-                    // buttons stay disabled
                 });
             }
         }).start();
@@ -348,4 +355,9 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
         MusicPlayer.getInstance().move(MusicSheet.noteIndexToTime(notes, cursorPos,(float)tempo/100f));
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isPlaying) stop();
+    }
 }
