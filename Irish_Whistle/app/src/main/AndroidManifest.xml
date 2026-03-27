@@ -10,14 +10,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SheetActivity"
-            android:launchMode="singleInstance" />
+            android:name=".SheetActivity" />
         <activity
-            android:name=".TabActivity"
-            android:launchMode="singleInstance" />
+            android:name=".TabActivity" />
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleInstance"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

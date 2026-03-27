@@ -30,7 +30,7 @@ public class AppCreditsDialog extends DialogFragment {
                 .setNegativeButton(getText(R.string.aboutDialog_websiteBtn), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent= new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.charleslabs.fr"));
+                        Intent intent= new Intent(Intent.ACTION_VIEW, Uri.parse((String) getText(R.string.aboutDialog_website)));
                         startActivity(intent);
                     }
                 })
