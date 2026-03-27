@@ -55,11 +55,4 @@ public class BookmarkManager {
     private void save(Set<String> ids) {
         prefs.edit().putStringSet(KEY_IDS, ids).apply();
     }
-
-    @Override
-    public String toString() {
-        Set<String> ids = getAll();
-        if (ids.isEmpty()) return "BookmarkManager: no bookmarks";
-        return "BookmarkManager: " + ids.size() + " bookmark(s): " + String.join(", ", ids);
-    }
 }

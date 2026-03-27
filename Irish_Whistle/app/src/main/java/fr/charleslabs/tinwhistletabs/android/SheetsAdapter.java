@@ -97,8 +97,10 @@ public class SheetsAdapter extends BaseAdapter implements Filterable {
 
         final MusicSheet sheet = (MusicSheet) displayList.get(position);
         viewHolder.sheetName.setText(sheet.getTitle());
-        viewHolder.sheetDetails.setText(context.getResources().getString(
-                R.string.mainActivity_sheetDetails_string, sheet.getType(), sheet.getWhistle()));
+        boolean isBookmarked = MusicDB.getInstance(context).bookmarks.isBookmarked(sheet.getFile());
+        String details = context.getResources().getString(
+                R.string.mainActivity_sheetDetails_string, sheet.getType(), sheet.getWhistle());
+        viewHolder.sheetDetails.setText(isBookmarked ? "★, " + details : details);
         switch (sheet.getType()) {
             case "Reel":      viewHolder.sheetImage.setImageResource(R.drawable.reel);     break;
             case "Jig":       viewHolder.sheetImage.setImageResource(R.drawable.jig);      break;
