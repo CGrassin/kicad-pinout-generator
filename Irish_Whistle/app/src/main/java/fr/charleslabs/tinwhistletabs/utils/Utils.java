@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 
 public class Utils {
 
@@ -29,5 +30,11 @@ public class Utils {
             out.append(buffer,0,rsz);
         }
         return out.toString();
+    }
+
+    public static String normalize(String s) {
+        return Normalizer.normalize(s, Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}", "")
+                .toLowerCase();
     }
 }

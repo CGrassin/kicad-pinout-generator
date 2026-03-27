@@ -30,6 +30,7 @@ import fr.charleslabs.tinwhistletabs.music.MusicSheet;
 public class MainActivity extends AppCompatActivity  {
     public static final String EXTRA_SHEET= "fr.charleslabs.tinwhistletabs.SHEET";
     private SheetsAdapter adapter;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity  {
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         final MenuItem searchItem = menu.findItem(R.id.mainAction_search);
-        final SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView = (SearchView) searchItem.getActionView();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -110,5 +111,7 @@ public class MainActivity extends AppCompatActivity  {
     protected void onResume() {
         super.onResume();
         adapter.refreshBookmarks();
+        if (searchView != null)
+            adapter.getFilter().filter(searchView.getQuery().toString());
     }
 }

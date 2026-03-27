@@ -19,6 +19,7 @@ import java.util.Set;
 import fr.charleslabs.tinwhistletabs.R;
 import fr.charleslabs.tinwhistletabs.music.MusicDB;
 import fr.charleslabs.tinwhistletabs.music.MusicSheet;
+import fr.charleslabs.tinwhistletabs.utils.Utils;
 
 public class SheetsAdapter extends BaseAdapter implements Filterable {
 
@@ -123,16 +124,17 @@ public class SheetsAdapter extends BaseAdapter implements Filterable {
                     filterResults.values = buildDisplayList(sheets, /*searchActive=*/false);
                 } else {
                     List<Object> results = new ArrayList<>();
-                    String searchStr = constraint.toString().toLowerCase();
+                    String searchStr = Utils.normalize(constraint.toString());
                     for (MusicSheet sheet : sheets)
                         if (sheet.filter(searchStr)) results.add(sheet);
-                    filterResults.values = results; // flat, no headers
+                    filterResults.values = results;
                 }
                 filterResults.count = ((List<?>) filterResults.values).size();
                 return filterResults;
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 displayList = (List<Object>) results.values;
                 notifyDataSetChanged();
@@ -143,6 +145,7 @@ public class SheetsAdapter extends BaseAdapter implements Filterable {
             }
         };
     }
+
 
     // --- Helpers ---
 

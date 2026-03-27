@@ -2,6 +2,7 @@
 input.abc
 input.json
 database_generator/output/
+Irish_Whistle/app/src/main/res/raw/
 
 # Built application files
 *.apk

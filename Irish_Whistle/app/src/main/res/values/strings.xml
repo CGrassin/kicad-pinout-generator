@@ -11,9 +11,10 @@
 
     <!-- About dialog -->
     <string name="aboutDialog_title">About Irish Whistle Tabs</string>
-    <string name="aboutDialog_message">Irish Whistle Tabs created by <b>Charles GRASSIN</b> under GPLv2 (free, open-source) licence.\n\nBuilt with <b>Tin Whistle Tab font</b> © Blayne Chastain / www.blaynechastain.com and <b>The Session</b> ODbL / https://thesession.org.</string>
+    <string name="aboutDialog_message">Irish Whistle Tabs created by <b>Charles GRASSIN</b> under GPLv2 (free, open-source) licence.\n\nBuilt with <b>Tin Whistle Tab font</b> © Blayne Chastain / www.blaynechastain.com and <b>The Session</b> ODbL / https://thesession.org.\n\nThanks to everyone who uses this app and to those who took the time to leave a kind word.</string>
     <string name="aboutDialog_okBtn">OK</string>
     <string name="aboutDialog_websiteBtn">Visit Website</string>
+    <string name="aboutDialog_website">https://charleslabs.fr</string>
 
     <!-- Tempo dialog -->
     <string name="tempoDialog_title">Change tempo</string>
@@ -35,7 +36,6 @@
     <string name="sheetInfoDialog_sheet_title">&lt;b&gt;Title&lt;/b&gt;: %1$s</string>
     <string name="sheetInfoDialog_sheet_author">&lt;br&gt;&lt;b&gt;Author&lt;/b&gt;: %1$s</string>
     <string name="sheetInfoDialog_sheet_type">&lt;br&gt;&lt;b&gt;Type&lt;/b&gt;: %1$s</string>
-    <string name="sheetInfoDialog_sheet_sheetAuthor">&lt;br&gt;&lt;b>Sheet author&lt;/b&gt;: %1$s</string>
     <string name="sheetInfoDialog_sheet_license">&lt;br&gt;&lt;b>Sheet license&lt;/b&gt;: %1$s</string>
 
     <!-- Tab activity -->
