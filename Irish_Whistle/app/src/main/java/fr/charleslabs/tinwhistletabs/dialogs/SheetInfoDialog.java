@@ -25,8 +25,6 @@ public class SheetInfoDialog extends DialogFragment {
         str.append(c.getResources().getString(R.string.sheetInfoDialog_sheet_type, sheet.getType()));
         if (sheet.getAuthor() != null)
             str.append(c.getResources().getString(R.string.sheetInfoDialog_sheet_author, sheet.getAuthor()));
-        if (sheet.getSheetAuthor() != null)
-            str.append(c.getResources().getString(R.string.sheetInfoDialog_sheet_sheetAuthor, sheet.getSheetAuthor()));
         if (sheet.getLicense() != null)
             str.append(c.getResources().getString(R.string.sheetInfoDialog_sheet_license, sheet.getLicense()));
 
