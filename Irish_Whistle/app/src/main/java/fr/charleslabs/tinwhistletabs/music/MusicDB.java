@@ -43,7 +43,8 @@ public class MusicDB {
         }
     }
 
-    public static String openRessource(Context c, String filename) throws IOException {
+    @SuppressWarnings("DiscouragedApi")
+    public static String openResource(Context c, String filename) throws IOException {
         int resId = c.getResources().getIdentifier(filename, "raw", c.getPackageName());
         if (resId == 0)
             throw new IOException("Resource not found: " + filename);
@@ -52,7 +53,7 @@ public class MusicDB {
 
     public static List<MusicNote> getNotes(Context c, String filename) throws IOException {
         List<MusicNote> notes = new ArrayList<>();
-        String fileContent = openRessource(c,filename);
+        String fileContent = openResource(c,filename);
         String[] notesArray = fileContent.split(",");
         for (String note : notesArray){
             final String[] split = note.split("/");

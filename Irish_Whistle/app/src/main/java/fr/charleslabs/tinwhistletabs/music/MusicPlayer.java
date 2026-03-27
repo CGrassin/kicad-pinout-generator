@@ -127,7 +127,7 @@ public class MusicPlayer {
     private static byte[] toneToBytePCM(float[] tone){
         final byte[] generatedSnd = new byte[tone.length * 2];
         // convert to 16 bit pcm sound array
-        // assumes the sample buffer is normalised.
+        // assumes the sample buffer is normalized.
         int idx = 0;
         for (float dVal : tone) {
             short val = (short) (dVal * 32767);

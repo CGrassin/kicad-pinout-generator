@@ -8,8 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-import java.util.Objects;
-
 import fr.charleslabs.tinwhistletabs.R;
 import fr.charleslabs.tinwhistletabs.music.MusicSettings;
 

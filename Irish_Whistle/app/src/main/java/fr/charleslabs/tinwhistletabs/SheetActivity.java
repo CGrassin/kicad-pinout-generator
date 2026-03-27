@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import java.io.IOException;
 
 import fr.charleslabs.tinwhistletabs.music.MusicDB;
+import fr.charleslabs.tinwhistletabs.utils.Utils;
 
 public class SheetActivity extends AppCompatActivity {
 
@@ -48,11 +49,11 @@ public class SheetActivity extends AppCompatActivity {
 
         final String abc_content;
         try {
-            abc_content = MusicDB.openRessource(this, (String)intent.getSerializableExtra(TabActivity.EXTRA_ABC));
+            abc_content = MusicDB.openResource(this, (String)intent.getSerializableExtra(TabActivity.EXTRA_ABC));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        final String abc = escape(abc_content);
+        final String abc = Utils.escape(abc_content);
 
         final String title = (String)intent.getSerializableExtra(TabActivity.EXTRA_SHEET_TITLE);
 
@@ -86,23 +87,6 @@ public class SheetActivity extends AppCompatActivity {
         return true;
     }
 
-    /**
-     * escape()
-     *
-     * Escape a give String to make it safe to be printed or stored.
-     *
-     * @param s The input String.
-     * @return The output String.
-     **/
-    public static String escape(String s){
-        return s.replace("\\", "\\\\")
-                .replace("\t", "\\t")
-                .replace("\b", "\\b")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\f", "\\f")
-                .replace("'", "\\'")
-                .replace("\"", "\\\"");
-    }
+
 
 }

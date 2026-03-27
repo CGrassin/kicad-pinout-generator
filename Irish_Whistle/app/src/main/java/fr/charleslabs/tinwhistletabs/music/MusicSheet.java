@@ -31,15 +31,6 @@ public class MusicSheet implements Serializable {
         this.whistle  = jsonObject.optString("w",        "D");
     }
 
-    public String getABC(Context context) {
-        if (abc_file == null) return null;
-        try {
-            return MusicDB.openRessource(context, abc_file);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     public void transposeKey(final List<MusicNote> notes, final String oldKey, final String newKey){
         if (!oldKey.equals(newKey)) {
             final int shift = MusicSettings.getShift(newKey) - MusicSettings.getShift(oldKey);
