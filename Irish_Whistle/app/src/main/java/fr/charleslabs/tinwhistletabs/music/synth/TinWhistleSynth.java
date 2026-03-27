@@ -19,6 +19,13 @@ public class TinWhistleSynth {
         //amplification(numSamples,music,offset,0.3f);
     }
 
+    static {
+        // Pre-warm the Math class to avoid JIT lag on first run
+        Math.sin(0);
+        Math.cos(0);
+        Math.random();
+    }
+    
     /**
      * Main oscillator.
      */
