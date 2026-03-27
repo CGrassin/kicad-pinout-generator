@@ -18,12 +18,13 @@ public class MusicDB {
 
     //Singleton
     private static MusicDB instance;
-    public static MusicDB getInstance(Context c){
+    public static synchronized MusicDB getInstance(Context c){
         if(instance == null){
             instance = new MusicDB(c.getApplicationContext());
         }
         return instance;
     }
+
     private MusicDB(Context c){
         try {
             String fileContent =  Utils.fileToString(c.getResources().openRawResource(R.raw.db));
@@ -38,22 +39,27 @@ public class MusicDB {
             bookmarks = new BookmarkManager(c);
 
         } catch (IOException | JSONException e) {
-            // @TODO : REACT TO THIS
             e.printStackTrace();
         }
     }
 
-    public static List<MusicNote> open(Context c, String filename) throws IOException {
-        List<MusicNote> notes = new ArrayList<>();
-        String fileContent =  Utils.fileToString(c.getResources().openRawResource(
-                c.getResources().getIdentifier(filename,"raw",c.getPackageName())));
+    public static String openRessource(Context c, String filename) throws IOException {
+        int resId = c.getResources().getIdentifier(filename, "raw", c.getPackageName());
+        if (resId == 0)
+            throw new IOException("Resource not found: " + filename);
+        return Utils.fileToString(c.getResources().openRawResource(resId));
+    }
 
+    public static List<MusicNote> getNotes(Context c, String filename) throws IOException {
+        List<MusicNote> notes = new ArrayList<>();
+        String fileContent = openRessource(c,filename);
         String[] notesArray = fileContent.split(",");
         for (String note : notesArray){
             final String[] split = note.split("/");
-            notes.add(new MusicNote(Integer.parseInt(split[0]),Integer.parseInt(split[1])));
+            if (split.length >= 2) {
+                notes.add(new MusicNote(Integer.parseInt(split[0]), Integer.parseInt(split[1])));
+            }
         }
-
         return notes;
     }
 }

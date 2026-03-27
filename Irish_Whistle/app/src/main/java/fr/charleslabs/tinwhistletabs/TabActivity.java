@@ -111,7 +111,7 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
         tab = findViewById(R.id.TabActivity_tab);
         countdownOverlay = findViewById(R.id.TabActivity_countdown);
         try {
-            notes = MusicDB.open(this, sheet.getFile());
+            notes = MusicDB.getNotes(this, sheet.getFile());
         } catch (Exception e) {
             finish();
         }
@@ -135,7 +135,7 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
             public void onClick(View v) {
                 stop();
                 Intent intent = new Intent(getApplicationContext(), SheetActivity.class);
-                intent.putExtra(EXTRA_ABC, sheet.getABC());
+                intent.putExtra(EXTRA_ABC, sheet.getAbcFile());
                 intent.putExtra(EXTRA_SHEET_TITLE, sheet.getTitle());
                 startActivity(intent);
             }
@@ -184,16 +184,28 @@ public class TabActivity extends AppCompatActivity implements TempoDialog.TempoC
         }
     }
 
-    private void setTune(){
-        try {
-            MusicPlayer.getInstance().setAudioTrack(MusicPlayer.genMusic(notes, (float)tempo/100f));
-            findViewById(R.id.TabActivity_btnPlayPause).setEnabled(true);
-            findViewById(R.id.TabActivity_btnStop).setEnabled(true);
-        }catch (Exception e){
-            Toast.makeText(this,getString(R.string.error_tune_generation,e.getMessage()),Toast.LENGTH_SHORT).show();
-            findViewById(R.id.TabActivity_btnPlayPause).setEnabled(false);
-            findViewById(R.id.TabActivity_btnStop).setEnabled(false);
-        }
+    private void setTune() {
+        // Disable buttons while loading
+        findViewById(R.id.TabActivity_btnPlayPause).setEnabled(false);
+        findViewById(R.id.TabActivity_btnStop).setEnabled(false);
+
+        new Thread(() -> {
+            try {
+                final byte[] track = MusicPlayer.genMusic(notes, (float) tempo / 100f);
+                runOnUiThread(() -> {
+                    MusicPlayer.getInstance().setAudioTrack(track);
+                    findViewById(R.id.TabActivity_btnPlayPause).setEnabled(true);
+                    findViewById(R.id.TabActivity_btnStop).setEnabled(true);
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(TabActivity.this,
+                            getString(R.string.error_tune_generation, e.getMessage()),
+                            Toast.LENGTH_SHORT).show();
+                    // buttons stay disabled
+                });
+            }
+        }).start();
     }
     private void playPause(){
         if(!isPlaying){

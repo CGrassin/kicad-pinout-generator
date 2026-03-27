@@ -16,6 +16,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.IOException;
+
+import fr.charleslabs.tinwhistletabs.music.MusicDB;
+
 public class SheetActivity extends AppCompatActivity {
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -40,7 +44,16 @@ public class SheetActivity extends AppCompatActivity {
         if (!intent.hasExtra(TabActivity.EXTRA_ABC) ||
                 !intent.hasExtra(TabActivity.EXTRA_SHEET_TITLE))
             finish();
-        final String abc = escape((String)intent.getSerializableExtra(TabActivity.EXTRA_ABC));
+
+
+        final String abc_content;
+        try {
+            abc_content = MusicDB.openRessource(this, (String)intent.getSerializableExtra(TabActivity.EXTRA_ABC));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        final String abc = escape(abc_content);
+
         final String title = (String)intent.getSerializableExtra(TabActivity.EXTRA_SHEET_TITLE);
 
         // Set action bar title

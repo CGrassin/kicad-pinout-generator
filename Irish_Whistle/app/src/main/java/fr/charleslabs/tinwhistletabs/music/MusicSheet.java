@@ -1,51 +1,52 @@
 package fr.charleslabs.tinwhistletabs.music;
 
+import android.content.Context;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class MusicSheet implements Serializable {
-    // Constants
-    /* final static public int DIFFICULTY_EASY = 0,
-            DIFFICULTY_MEDIUM = 1,
-            DIFFICULTY_HARD = 2;*/
+import fr.charleslabs.tinwhistletabs.utils.Utils;
 
+public class MusicSheet implements Serializable {
     // Allocated at construction
     private final String title;
     private final String author;
     private final String file;
+    private final String abc_file;   // filename of the ABC file, replaces inline abc
     private final String type;
     private final String sheet_author;
-    private final String license ;
+    private final String license;
     private final String key;
-
     private final String whistle;
-
-    private String abc;
-    //public int difficulty = DIFFICULTY_MEDIUM;
 
     MusicSheet(JSONObject jsonObject) throws JSONException {
         // Mandatory
         this.title = jsonObject.getString("title");
-        this.file = jsonObject.getString("file");
-        this.type = jsonObject.getString("type");
-        if (jsonObject.has("abc")) this.abc = jsonObject.getString("abc");
+        this.file  = jsonObject.getString("file");
+        this.type  = jsonObject.getString("type");
+
+        // abc_file replaces abc — fall back to null if old-format entry
+        this.abc_file = jsonObject.has("abc_file") ? jsonObject.getString("abc_file") : null;
 
         // Optional
-        //if (jsonObject.has("difficulty")) this.difficulty = jsonObject.getInt("difficulty");
-        if (jsonObject.has("author")) this.author = jsonObject.getString("author");
-        else this.author = null;
-        if (jsonObject.has("sheet_author")) this.sheet_author = jsonObject.getString("sheet_author");
-        else this.sheet_author = null;
-        if (jsonObject.has("license")) this.license = jsonObject.getString("license");
-        else this.license = null;
-        if (jsonObject.has("key")) this.key = jsonObject.getString("key");
-        else this.key = MusicSettings.DEFAULT_KEY;
-        if (jsonObject.has("whistle")) this.whistle = jsonObject.getString("whistle");
-        else this.whistle = "D";
-        //if (jsonObject.has("tempo")) this.tempo = jsonObject.getInt("tempo");
+        this.author       = jsonObject.optString("author",       null);
+        this.sheet_author = jsonObject.optString("sheet_author", null);
+        this.license      = jsonObject.optString("license",      null);
+        this.key          = jsonObject.optString("key",          MusicSettings.DEFAULT_KEY);
+        this.whistle      = jsonObject.optString("whistle",      "D");
+    }
+
+    // Lazy-load ABC from its dedicated file
+    public String getABC(Context context) {
+        if (abc_file == null) return null;
+        try {
+            return MusicDB.openRessource(context, abc_file);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public void transposeKey(final List<MusicNote> notes, final String oldKey, final String newKey){
@@ -73,34 +74,27 @@ public class MusicSheet implements Serializable {
                                         final float tempoModifier){
         float time = 0;
         int i = 0, trueNotes = 0;
-
         while (trueNotes < noteIndex) {
-            if (i >= notes.size())
-                return 0;
-            if(!notes.get(i).isRest())
-                trueNotes++;
+            if (i >= notes.size()) return 0;
+            if (!notes.get(i).isRest()) trueNotes++;
             time += notes.get(i).getLengthInS(tempoModifier);
-            i ++;
+            i++;
         }
         return time;
     }
 
-    // Filter
     public boolean filter(final String search){
         return this.getTitle().toLowerCase().contains(search);
     }
 
-    // Getter and setters
-    public String getAuthor() {return author;}
-    public String getTitle() {return title;}
-    public String getFile() {return file;}
-    public String getKey() {return key;}
-    public String getType() {return type;}
-    public String getSheetAuthor() {return sheet_author;}
-    public String getLicense() {return license;}
-    public String getABC() {return abc;}
-    //public int getDifficulty() {return difficulty;}
-    public String getWhistle() {
-        return whistle;
-    }
+    // Getters
+    public String getAuthor()      { return author; }
+    public String getTitle()       { return title; }
+    public String getFile()        { return file; }
+    public String getAbcFile()     { return abc_file; }
+    public String getKey()         { return key; }
+    public String getType()        { return type; }
+    public String getSheetAuthor() { return sheet_author; }
+    public String getLicense()     { return license; }
+    public String getWhistle()     { return whistle; }
 }
