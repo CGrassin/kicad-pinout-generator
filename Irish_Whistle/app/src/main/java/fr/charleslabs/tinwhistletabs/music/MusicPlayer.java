@@ -65,11 +65,8 @@ public class MusicPlayer {
 
     // Media controls: set, play, pause, stop, clear
     public void setAudioTrack(byte[] generatedSnd){
-        if(audioTrack != null){
-            audioTrack.stop();
-            audioTrack.flush();
-            audioTrack.release();
-        }
+        clearAudioTrack();
+        
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, generatedSnd.length,
@@ -84,6 +81,17 @@ public class MusicPlayer {
         }catch (Exception ignored){}
 
         audioTrack.write(generatedSnd, 0, generatedSnd.length);
+    }
+
+    public void clearAudioTrack() {
+        if(audioTrack != null){
+            try {
+                audioTrack.stop();
+                audioTrack.flush();
+                audioTrack.release();
+            } catch (Exception ignored) {}
+            audioTrack = null;
+        }
     }
 
     public void play() {
@@ -107,29 +115,13 @@ public class MusicPlayer {
     }
 
     public void stop() {
-        // @TODO Fade volume
         if (audioTrack != null)
-            //fadeOutAndStop();
             audioTrack.stop();
     }
 
     public void move(float time) {
         if (audioTrack != null)
             audioTrack.setPlaybackHeadPosition((int)(time*SAMPLE_RATE));
-    }
-
-    private static byte[] toneToBytePCM(double[] tone){
-        final byte[] generatedSnd = new byte[tone.length * 2];
-        // convert to 16 bit pcm sound array
-        // assumes the sample buffer is normalised.
-        int idx = 0;
-        for (double dVal : tone) {
-            short val = (short) (dVal * 32767);
-            generatedSnd[idx++] = (byte) (val & 0x00ff);
-            generatedSnd[idx++] = (byte) ((val & 0xff00) >>> 8);
-        }
-
-        return generatedSnd;
     }
 
     private static byte[] toneToBytePCM(float[] tone){
@@ -145,31 +137,4 @@ public class MusicPlayer {
 
         return generatedSnd;
     }
-
-    /*float volume;
-    final private static int FADE_DURATION = 300; //The duration of the fade
-    final private static  int FADE_INTERVAL = 150; //The amount of time between volume changes.
-    private void fadeOutAndStop(){
-        volume = AudioTrack.getMaxVolume();
-        final float deltaVolume = volume / (float)(FADE_DURATION/FADE_INTERVAL);
-        final Timer timer = new Timer(true);
-
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                volume -= deltaVolume;
-                System.out.println(volume);
-                if (volume >= AudioTrack.getMinVolume())
-                    audioTrack.setStereoVolume(volume,volume);
-                //Cancel and Purge the Timer if the desired volume has been reached
-                else{
-                    timer.cancel();
-                    timer.purge();
-                    audioTrack.stop();
-                    audioTrack.setStereoVolume(1,1);
-                }
-            }
-        };
-        timer.schedule(timerTask,FADE_INTERVAL,FADE_INTERVAL);
-    }*/
 }
