@@ -14,12 +14,12 @@ This KiCad plugin generates pinouts of components from a PCB file to various for
   * [WireViz](https://github.com/formatc1702/WireViz)
 * **Code** format for software development:
   * C/C++ enums
+  * C/C++ const int
   * C/C++ #define
   * Python/MicroPython dict.
+  * Rust enum (thanks to [olFi95](https://github.com/olFi95))
   * Xilinx XDC constraint (FPGA)
   * Microsemi PDC constraint (FPGA)
-  * Microsemi PDC constraint (FPGA)
-  * Rust enum (thanks to [olFi95](https://github.com/olFi95))
 
 Example applications:
 
