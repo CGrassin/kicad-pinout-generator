@@ -127,7 +127,6 @@ def fmt_markdown(components: list[ComponentData]) -> str:
         out.append('')
     return '\n'.join(out)
 
-
 def fmt_c_enum(
     components: list[ComponentData],
     pin_name_filter: str = '',
@@ -148,7 +147,6 @@ def fmt_c_enum(
         out.append('};\n')
     return '\n'.join(out)
 
-
 def fmt_c_define(
     components: list[ComponentData],
     pin_name_filter: str = '',
@@ -168,6 +166,24 @@ def fmt_c_define(
         out.append('')
     return '\n'.join(out)
 
+def fmt_c_const_int(
+    components: list[ComponentData],
+    pin_name_filter: str = '',
+    use_pin_name: bool = False,
+) -> str:
+    out = []
+    for comp in components:
+        seen = set()
+        out.append(f"// Pinout generated for {comp.reference} ({comp.value})")
+        for pin in comp.pins:
+            var   = _to_c_variable('pin_' + pin.net)
+            value = _filter_pinname(pin.function, pin_name_filter) if use_pin_name else pin.number
+            skip  = var in seen or not value.isdigit() or not pin.is_connected or pin.is_power
+            if not skip:
+                seen.add(var)
+            out.append(('//' if skip else '') + f"const int {var} = {value},")
+        out.append('')
+    return '\n'.join(out)
 
 def fmt_python_dict(
     components: list[ComponentData],

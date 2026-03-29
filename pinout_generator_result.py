@@ -40,7 +40,7 @@ class PinoutDialog ( wx.Dialog ):
 
 		bSizer4.Add( self.m_staticText11, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
 
-		output_formatChoices = [ u"List", u"CSV", u"HTML table", u"Markdown table", u"C/C++ code (#define)", u"C/C++ code (enum)", u"Python (dict)", u"WireViz ", u"FPGA (XDC format)", u"FPGA (PDC format)", u"Rust (enum)" ]
+		output_formatChoices = [ u"List", u"CSV", u"HTML table", u"Markdown table", u"C/C++ code (#define)", u"C/C++ code (enum)", u"Python (dict)", u"WireViz ", u"FPGA (XDC format)", u"FPGA (PDC format)", u"Rust (enum)", u"C/C++ code (const int)" ]
 		self.output_format = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, output_formatChoices, 0 )
 		self.output_format.SetSelection( 0 )
 		bSizer4.Add( self.output_format, 0, wx.ALL, 5 )
@@ -48,7 +48,7 @@ class PinoutDialog ( wx.Dialog ):
 
 		bSizer2.Add( bSizer4, 1, wx.EXPAND, 5 )
 
-		self.pinNameCB = wx.CheckBox( self, wx.ID_ANY, u"Use pin name instead of number (C/Python)", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.pinNameCB = wx.CheckBox( self, wx.ID_ANY, u"Use pin name instead of number (C/Python/Rust)", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.pinNameCB.Enable( False )
 
 		bSizer2.Add( self.pinNameCB, 0, wx.ALL, 5 )
