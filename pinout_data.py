@@ -1,6 +1,9 @@
 """
 pinout_data.py – PCB-agnostic data model and formatters.
 
+Author: Charles Grassin
+License: MIT
+
 """
 
 import re

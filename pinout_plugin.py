@@ -2,6 +2,9 @@
 """
 pinout_plugin.py – pcbnew extraction + wx UI.
 
+Author: Charles Grassin
+License: MIT
+
 """
 
 import re
@@ -23,13 +26,13 @@ SELECTOR = {
     'html':        2,
     'md':          3,
     'c_define':    4,
-    'c_enum':      5,
-    'python_dict': 6,
-    'wireviz':     7,
-    'fpga_xdc':    8,
-    'fpga_pdc':    9,
-    'rust':        10,
-    'c_const_int': 11,
+    'c_const_int': 5,
+    'c_enum':      6,
+    'python_dict': 7,
+    'rust':        8,
+    'wireviz':     9,
+    'fpga_xdc':    10,
+    'fpga_pdc':    11,
 }
 
 _SINGLE_ONLY   = {SELECTOR['c_define'], SELECTOR['fpga_xdc'], SELECTOR['fpga_pdc']}
@@ -100,13 +103,13 @@ class PinoutGenerator(pcbnew.ActionPlugin):
             SELECTOR['html']:        lambda: fmt_html(comps),
             SELECTOR['md']:          lambda: fmt_markdown(comps),
             SELECTOR['c_enum']:      lambda: fmt_c_enum(comps, name_filt, use_name),
+            SELECTOR['c_const_int']: lambda: fmt_c_const_int(comps, name_filt, use_name),
             SELECTOR['c_define']:    lambda: fmt_c_define(comps, name_filt, use_name),
             SELECTOR['python_dict']: lambda: fmt_python_dict(comps, name_filt, use_name),
+            SELECTOR['rust']:        lambda: fmt_rust(comps, name_filt, use_name),
             SELECTOR['wireviz']:     lambda: fmt_wireviz(comps),
             SELECTOR['fpga_xdc']:    lambda: fmt_xdc(comps),
             SELECTOR['fpga_pdc']:    lambda: fmt_pdc(comps),
-            SELECTOR['rust']:        lambda: fmt_rust(comps, name_filt, use_name),
-            SELECTOR['c_const_int']: lambda: fmt_c_const_int(comps, name_filt, use_name),
         }
         return dispatch[sel]()
 
