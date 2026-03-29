@@ -14,6 +14,7 @@ class PinData:
     number: str
     function: str       # pad.GetPinFunction()
     net: str            # resolved net name, or "NC"
+    type: str
     is_connected: bool
     is_power: bool
     is_passive: bool
@@ -73,6 +74,7 @@ def fmt_csv(components: list[ComponentData], sep: str = ',', quote: str = '"') -
                 f"{quote}{_escape_csv(pin.number, sep)}{quote}",
                 f"{quote}{_escape_csv(pin.function, sep)}{quote}",
                 f"{quote}{_escape_csv(pin.net, sep)}{quote}",
+                #f"{quote}{_escape_csv(pin.type, sep)}{quote}",
             ]
             lines.append(sep.join(parts))
     return '\n'.join(lines) + '\n' if lines else ''
@@ -88,11 +90,14 @@ def fmt_html(components: list[ComponentData]) -> str:
         out.append(f"<p>Pinout for {_escape_html(comp.reference)} ({_escape_html(comp.value)}):</p>")
         out.append("<table>")
         out.append("\t<tr><th>Pin number</th><th>Pin name</th><th>Pin net</th></tr>")
+        #out.append("\t<tr><th>Pin number</th><th>Pin name</th><th>Pin net</th><th>Pin type</th></tr>")
         for pin in comp.pins:
             out.append(
                 f"\t<tr><td>{_escape_html(pin.number)}</td>"
                 f"<td>{_escape_html(pin.function, True)}</td>"
-                f"<td>{_escape_html(pin.net, True)}</td></tr>"
+                f"<td>{_escape_html(pin.net, True)}</td>"
+                # f"<td>{_escape_html(pin.type, True)}</td>"
+                "</tr>"
             )
         out.append("</table>")
     return '\n'.join(out) + '\n'
@@ -105,11 +110,13 @@ def fmt_markdown(components: list[ComponentData]) -> str:
         col_num  = max(len('Pin number'), *(len(_escape_markdown(p.number))   for p in comp.pins))
         col_name = max(len('Pin name'),   *(len(_escape_markdown(p.function)) for p in comp.pins))
         col_net  = max(len('Pin net'),    *(len(_escape_markdown(p.net))      for p in comp.pins))
+        # col_type  = max(len('Pin type'),    *(len(_escape_markdown(p.type))      for p in comp.pins))
 
         def row(a, b, c):
-            return f"| {a:<{col_num}} | {b:<{col_name}} | {c:<{col_net}} |"
+            return f"| {a:<{col_num}} | {b:<{col_name}} | {c:<{col_net}} |" # f"  {d:<{col_type}} |"
 
         out.append(row('Pin number', 'Pin name', 'Pin net'))
+        #out.append(row('Pin number', 'Pin name', 'Pin net', 'Pin type'))
         out.append(f"|{'-'*(col_num+2)}|{'-'*(col_name+2)}|{'-'*(col_net+2)}|")
         for pin in comp.pins:
             out.append(row(

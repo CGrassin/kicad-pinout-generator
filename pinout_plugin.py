@@ -65,6 +65,7 @@ def _extract_component(footprint) -> ComponentData:
             number=num,
             function=pad.GetPinFunction(),
             net=_net_name(pad),
+            type=pad.GetPinType(),
             is_connected=_pad_is_connected(pad),
             is_power=_pad_is_power(pad),
             is_passive=_pad_is_passive(pad),
