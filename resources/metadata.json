@@ -21,7 +21,7 @@
             "version": "1.3",
             "status": "stable",
             "runtime": "swig",
-            "kicad_version": "8.0"
+            "kicad_version": "10.0"
         }
     ]
 }

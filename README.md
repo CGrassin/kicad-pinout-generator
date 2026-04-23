@@ -1,8 +1,6 @@
 # KiCad Pinout Generator
 
-**Compatibility:** KiCad 8+.
-
-## Plugin presentation
+## Plugin overview
 
 This KiCad plugin generates pinouts of components from a PCB file to various formats:
 
